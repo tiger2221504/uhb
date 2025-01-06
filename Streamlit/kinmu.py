@@ -663,7 +663,7 @@ if start_button:
   try:
     st.info("処理を開始します")
     progress_text = "処理中です. しばらくお待ちください."
-    my_bar = progress(0, text=progress_text) # プログレスバー
+    my_bar = st.progress(0, text=progress_text) # プログレスバー
     
     # ==スプレッドシートの準備==
     
