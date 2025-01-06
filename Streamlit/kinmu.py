@@ -662,7 +662,7 @@ generate_length = st.number_input("生成回数を入力", min_value=1, value=50
 start_button = st.button("スタート")
 
 # ==メインの処理==
-if start_button:
+if start_button and st.session_state.x is None:
   try:
     st.info("処理を開始しました")
     progress_text = "処理中です. しばらくお待ちください."
@@ -783,25 +783,26 @@ if start_button:
     st.write(f"score={top[0]}")
     st.markdown(top[2])
 
-    if st.session_state.x is not None:
-      st.write("")
-      st.write(f"{YEAR}年{MONTH}月の勤務表")
-      st.dataframe(st.session_state.x)
-  
-      csv1 = st.session_state.x.to_csv(index=False, header=False).encode("utf-8_sig")
-      st.download_button(
-         label="CSV(インデックスなし)",
-         data=csv1,
-         file_name="勤務表(コピー用).csv",
-         mime="text/csv",
-        )
-      csv2 = st.session_state.x.to_csv(index=True, header=True).encode("utf-8_sig")
-      st.download_button(
-         label="CSV(インデックスあり)",
-         data=csv2,
-         file_name="勤務表.csv",
-         mime="text/csv",
-        )
   except Exception as e:
     st.error("失敗しました")
     st.write(e)
+
+if st.session_state.x is not None:
+  st.write("")
+  st.write(f"{YEAR}年{MONTH}月の勤務表")
+  st.dataframe(st.session_state.x)
+
+  csv1 = st.session_state.x.to_csv(index=False, header=False).encode("utf-8_sig")
+  st.download_button(
+     label="CSV(インデックスなし)",
+     data=csv1,
+     file_name="勤務表(コピー用).csv",
+     mime="text/csv",
+    )
+  csv2 = st.session_state.x.to_csv(index=True, header=True).encode("utf-8_sig")
+  st.download_button(
+     label="CSV(インデックスあり)",
+     data=csv2,
+     file_name="勤務表.csv",
+     mime="text/csv",
+    )
