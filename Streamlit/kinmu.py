@@ -137,8 +137,9 @@ if start_button:
          file_name="勤務表.csv",
          mime="text/csv",
         )
-   except:
-      st.error("入力されたURLが不正です。正しいURLを入力してください。")
+   except Exception as e:
+      st.error("失敗しました")
+      st.write(e)
 
 # 初期生成用の関数
 def create_main(df):
