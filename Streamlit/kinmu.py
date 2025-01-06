@@ -743,10 +743,11 @@ if start_button:
       worksheet_setting = workbook.worksheet('設定')
       data_setting = pd.DataFrame(worksheet_setting.get_all_values())
       # data_settingから必要な情報を取得
-      data_setting
+      # data_setting
       YEAR = data_setting.iloc[0,1]
       MONTH = data_setting.iloc[1,1]
       HOLIDAYS = data_setting.iloc[2,1]
+      st.write(f"{YEAR}年{MONTH}月")
       # print(f"年：{YEAR}")
       # print(f"月：{MONTH}")
       # print(f"休日数：{HOLIDAYS}")
