@@ -783,13 +783,14 @@ if start_button and st.session_state.x is None:
     st.write(f"score={top[0]}")
     st.markdown(top[2])
 
+    st.write("")
+    st.write(f"{YEAR}年{MONTH}月の勤務表")
+
   except Exception as e:
     st.error("失敗しました")
     st.write(e)
 
 if st.session_state.x is not None:
-  st.write("")
-  st.write(f"{YEAR}年{MONTH}月の勤務表")
   st.dataframe(st.session_state.x)
 
   csv1 = st.session_state.x.to_csv(index=False, header=False).encode("utf-8_sig")
