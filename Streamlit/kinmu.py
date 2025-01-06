@@ -769,8 +769,8 @@ if start_button:
       
       # 最強個体の保存
       st.session_state.x = top[1]
-      x = x.replace("1", "休")
-      x = x.replace("0", "")
+      st.session_state.x = st.session_state.x.replace("1", "休")
+      st.session_state.x = st.session_state.x.replace("0", "")
       csv = st.session_state.x.to_csv(index=False, header=False).encode("utf-8_sig")
       
       st.success("処理が完了しました！")
