@@ -629,7 +629,7 @@ def check_ALL(df):
   score_sum = -score_sum
 
   text = (
-      f"*修正できていない箇所*\n  "
+      f"**修正できていない箇所**\n  "
       f"- 記者：週末の勤務は月２回まで:{list[0]}\n  "
       f"- 記者：２週連続で土日勤務:{list[1]}\n  "
       f"- ７連勤以上:{list[2]}\n  "
@@ -653,6 +653,8 @@ def check_ALL(df):
 # セッション状態を初期化
 if "x" not in st.session_state:
     st.session_state.x = None
+if "display_text" not in st.session_state:
+    st.session_state.display_text = ""
 
 st.title('勤務表生成システムβ')
 
@@ -781,9 +783,10 @@ if start_button and st.session_state.x is None:
     st.success("処理が完了しました！")
     my_bar.empty()
     st.session_state.best_score = st.session_state.top[0]
-    st.session_state.best_text = st.session_state.top[2]
+    st.session_state.display_text = st.session_state.top[2]
     st.write(f"score={st.session_state.best_score}")
-    st.markdown(st.session_state.best_text)
+    if st.session_state.display_text:
+      st.markdown(st.session_state.display_text)
 
   except Exception as e:
     st.error("失敗しました")
