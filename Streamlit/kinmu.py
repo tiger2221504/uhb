@@ -1,3 +1,4 @@
+import streamlit as st
 import gspread
 from google.oauth2.service_account import Credentials
 import pandas as pd
@@ -5,7 +6,7 @@ import numpy as np
 import random
 pd.set_option('future.no_silent_downcasting', True)
 
-SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/11NamKdx9kV2Iv8LrJHbDgF3Kj6N-KersJlozYDYJkY0/edit?usp=sharing'
+SPREADSHEET_URL = ''
 
 # ==スプレッドシートの準備==
 
@@ -742,28 +743,44 @@ def check_ALL(df):
 
   return score_sum, text
 
-# ==ランダムで生成==
+# ==メインの処理==
+st.title('勤務表生成システムβ')
 
-generate_length = 200 #生成数
+# 入力フォーム
+SPREADSHEET_URL = st.text_input("URLを入力してください")
+generate_length = st.number_input("生成回数を入力", min_value=1, value=50, step=1)
+start_button = st.button("スタート")
 
-list = []
-for i in range(generate_length):
-  parent = create_main(data_kakuteibi)
-  score, text = check_ALL(parent)
-  list.append([score, parent, text])
-  print(f"score{i+1}={score}")
+if start_button:
+   # URLの検証
+   if not validators.url(url):
+      st.error("入力されたURLが不正です。正しいURLを入力してください。")
+   else:
+      st.info("処理を開始します")
 
-# 点数で並び替え
-parents = sorted(list, key=lambda x: -x[0])
-top = parents[0]
+      list = []
+      for i in range(generate_length):
+        parent = create_main(data_kakuteibi)
+        score, text = check_ALL(parent)
+        list.append([score, parent, text])
+        print(f"score{i+1}={score}")
+      
+      # 点数で並び替え
+      parents = sorted(list, key=lambda x: -x[0])
+      top = parents[0]
+      
+      # 最強個体の保存
+      x = top[1]
+      x = x.replace("1", "休")
+      x = x.replace("0", "")
+      csv = x.to_csv(index=False, header=False).encode("utf-8_sig")
+      
+      st.success("処理が完了しました！")
+      st.text(top[2])
 
-# 最高得点の表示
-print(f"\n【TOP={top[0]}】")
-print(top[2])
-
-
-# 最強個体の保存
-x = top[1]
-x = x.replace("1", "休")
-x = x.replace("0", "")
-x.to_csv("./best.csv", encoding="utf-8_sig", index=False, header=False)
+      st.download_button(
+         label="結果をCSVでダウンロード",
+         data=csv,
+         file_name="勤務表.csv",
+         mime="text/csv",
+        )
