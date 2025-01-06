@@ -656,7 +656,7 @@ if "x" not in st.session_state:
 if "display_text" not in st.session_state:
     st.session_state.display_text = ""
 if "best_score" not in st.session_state:
-  st.session_state.best_score = ""
+  st.session_state.best_score = None
 
 st.title('勤務表生成システムβ')
 
@@ -791,7 +791,8 @@ if start_button and st.session_state.x is None:
     st.error("失敗しました")
     st.write(e)
 
-st.write(f"score={st.session_state.best_score}")
+if st.session_state.best_score:
+  st.write(f"score={st.session_state.best_score}")
 if st.session_state.display_text:
   st.markdown(st.session_state.display_text)
 if st.session_state.x is not None:
