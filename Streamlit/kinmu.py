@@ -629,23 +629,23 @@ def check_ALL(df):
   score_sum = -score_sum
 
   text = (
-      f"*修正できていない箇所*\n"
-      f"・記者：週末の勤務は月２回まで:{list[0]}\n"
-      f"・記者：２週連続で土日勤務:{list[1]}\n"
-      f"・７連勤以上:{list[2]}\n"
-      f"・編集長・B・C・N…月～金で１人:{list[3]}\n"
-      f"・土日デスク…各1人:{list[4]}\n"
-      f"・正月デスク…1人:{list[5]}\n"
-      f"・デスク：月～金は４名以上:{list[6]}\n"
-      f"・同一人物でC→BはNG:{list[7]}\n"
-      f"・同一人物でN→BはNG:{list[8]}\n"
-      f"・記者：早・昼勤務…月～金で１人:{list[9]}\n"
-      f"・記者：遅勤務…月～木:{list[10]}\n"
-      f"・記者：深夜勤務…金曜、土曜で１人:{list[11]}\n"
-      f"・月～金のうち 社会班３名/政経班２名は勤務:{list[12]}\n"
-      f"・同一人物で、遅勤務（深夜勤務）→早勤務（日、日①）はNG:{list[13]}\n"
-      f"・飛び石連休:{list[14]}\n"
-      f"・休暇数:{list[15]}"
+      f"*修正できていない箇所*  "
+      f"- 記者：週末の勤務は月２回まで:{list[0]}  "
+      f"- 記者：２週連続で土日勤務:{list[1]}  "
+      f"- ７連勤以上:{list[2]}  "
+      f"- 編集長・B・C・N…月～金で１人:{list[3]}  "
+      f"- 土日デスク…各1人:{list[4]}  "
+      f"- 正月デスク…1人:{list[5]}  "
+      f"- デスク：月～金は４名以上:{list[6]}  "
+      f"- 同一人物でC→BはNG:{list[7]}  "
+      f"- 同一人物でN→BはNG:{list[8]}  "
+      f"- 記者：早・昼勤務…月～金で１人:{list[9]}  n"
+      f"- 記者：遅勤務…月～木:{list[10]}  "
+      f"- 記者：深夜勤務…金曜、土曜で１人:{list[11]}  "
+      f"- 月～金のうち 社会班３名/政経班２名は勤務:{list[12]}  "
+      f"- 同一人物で、遅勤務（深夜勤務）→早勤務（日、日①）はNG:{list[13]}  "
+      f"- 飛び石連休:{list[14]}  "
+      f"- 休暇数:{list[15]}"
   )
 
   return score_sum, text
@@ -748,8 +748,8 @@ if start_button and st.session_state.x is None:
     data_setting = pd.DataFrame(worksheet_setting.get_all_values())
     # data_settingから必要な情報を取得
     # data_setting
-    YEAR = data_setting.iloc[0,1]
-    MONTH = data_setting.iloc[1,1]
+    st.session_state.YEAR = data_setting.iloc[0,1]
+    st.session_state.MONTH = data_setting.iloc[1,1]
     HOLIDAYS = data_setting.iloc[2,1]
     # print(f"年：{YEAR}")
     # print(f"月：{MONTH}")
@@ -770,27 +770,26 @@ if start_button and st.session_state.x is None:
     
     # 点数で並び替え
     parents = sorted(list, key=lambda x: -x[0])
-    top = parents[0]
+    st.session_state.top = parents[0]
     
     # 最強個体の保存
-    st.session_state.x = top[1]
+    st.session_state.x = st.session_state.top[1]
     st.session_state.x = st.session_state.x.replace("1", "休")
     st.session_state.x = st.session_state.x.replace("0", "")
     st.session_state.x.index = member["勤務者"].values
     
     st.success("処理が完了しました！")
     my_bar.empty()
-    st.write(f"score={top[0]}")
-    st.markdown(top[2])
-
-    st.write("")
-    st.write(f"{YEAR}年{MONTH}月の勤務表")
+    st.write(f"score={st.session_state.top[0]}")
+    st.markdown(st.session_state.top[2])
 
   except Exception as e:
     st.error("失敗しました")
     st.write(e)
 
 if st.session_state.x is not None:
+  st.write("")
+  st.write(f"{st.session_state.YEAR}年{st.session_state.MONTH}月の勤務表")
   st.dataframe(st.session_state.x)
 
   csv1 = st.session_state.x.to_csv(index=False, header=False).encode("utf-8_sig")
