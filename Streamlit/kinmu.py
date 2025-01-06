@@ -654,14 +654,14 @@ def check_ALL(df):
 st.title('勤務表生成システムβ')
 
 # 入力フォーム
-SPREADSHEET_URL = st.text_input("URLを入力してください")
+SPREADSHEET_URL = st.text_input("スプレッドシートのURLを入力")
 generate_length = st.number_input("生成回数を入力", min_value=1, value=50, step=1)
 start_button = st.button("スタート")
 
 # ==メインの処理==
 if start_button:
   try:
-    st.info("処理を開始します")
+    st.info("処理を開始しました")
     progress_text = "処理中です. しばらくお待ちください."
     my_bar = st.progress(0, text=progress_text) # プログレスバー
     
@@ -748,7 +748,6 @@ if start_button:
     YEAR = data_setting.iloc[0,1]
     MONTH = data_setting.iloc[1,1]
     HOLIDAYS = data_setting.iloc[2,1]
-    st.write(f"{YEAR}年{MONTH}月")
     # print(f"年：{YEAR}")
     # print(f"月：{MONTH}")
     # print(f"休日数：{HOLIDAYS}")
@@ -776,12 +775,13 @@ if start_button:
     st.session_state.x = st.session_state.x.replace("0", "")
     st.session_state.x.index = member["勤務者"].values
     csv1 = st.session_state.x.to_csv(index=False, header=False).encode("utf-8_sig")
-    csv2 = st.session_state.x.to_csv.encode("utf-8_sig")
+    csv2 = st.session_state.x.to_csv(index=True, header=True).encode("utf-8_sig")
     
     st.success("処理が完了しました！")
     my_bar.empty()
     st.text(top[2])
-    
+
+    st.write(f"{YEAR}年{MONTH}月の勤務表")
     st.dataframe(st.session_state.x)
     
     st.download_button(
