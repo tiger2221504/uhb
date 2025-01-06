@@ -655,6 +655,8 @@ if "x" not in st.session_state:
     st.session_state.x = None
 if "display_text" not in st.session_state:
     st.session_state.display_text = ""
+if "best_score" not in st.session_state:
+  st.session_state.best_score = ""
 
 st.title('勤務表生成システムβ')
 
