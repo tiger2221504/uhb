@@ -6,7 +6,13 @@ import numpy as np
 import random
 pd.set_option('future.no_silent_downcasting', True)
 
-SPREADSHEET_URL = ''
+
+st.title('勤務表生成システムβ')
+
+# 入力フォーム
+SPREADSHEET_URL = st.text_input("URLを入力してください")
+generate_length = st.number_input("生成回数を入力", min_value=1, value=50, step=1)
+start_button = st.button("スタート")
 
 # ==スプレッドシートの準備==
 
@@ -744,13 +750,6 @@ def check_ALL(df):
   return score_sum, text
 
 # ==メインの処理==
-st.title('勤務表生成システムβ')
-
-# 入力フォーム
-SPREADSHEET_URL = st.text_input("URLを入力してください")
-generate_length = st.number_input("生成回数を入力", min_value=1, value=50, step=1)
-start_button = st.button("スタート")
-
 if start_button:
    # URLの検証
    if not validators.url(url):
