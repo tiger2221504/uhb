@@ -17,9 +17,7 @@ start_button = st.button("スタート")
 # ==メインの処理==
 if start_button:
    # URLの検証
-   if not validators.url(url):
-      st.error("入力されたURLが不正です。正しいURLを入力してください。")
-   else:
+   try:
       st.info("処理を開始します")
 
       # ==スプレッドシートの準備==
@@ -139,6 +137,8 @@ if start_button:
          file_name="勤務表.csv",
          mime="text/csv",
         )
+   except:
+      st.error("入力されたURLが不正です。正しいURLを入力してください。")
 
 # 初期生成用の関数
 def create_main(df):
