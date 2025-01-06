@@ -774,7 +774,9 @@ if start_button:
     st.session_state.x = top[1]
     st.session_state.x = st.session_state.x.replace("1", "休")
     st.session_state.x = st.session_state.x.replace("0", "")
-    csv = st.session_state.x.to_csv(index=False, header=False).encode("utf-8_sig")
+    st.session_state.x.index = member["勤務者"].values
+    csv1 = st.session_state.x.to_csv(index=False, header=False).encode("utf-8_sig")
+    csv2 = st.session_state.x.to_csv.encode("utf-8_sig")
     
     st.success("処理が完了しました！")
     my_bar.empty()
@@ -783,8 +785,14 @@ if start_button:
     st.dataframe(st.session_state.x)
     
     st.download_button(
-       label="結果をCSVでダウンロード",
-       data=csv,
+       label="CSV(インデックスなし)",
+       data=csv1,
+       file_name="勤務表.csv",
+       mime="text/csv",
+      )
+    st.download_button(
+       label="CSV(インデックスあり)",
+       data=csv2,
        file_name="勤務表.csv",
        mime="text/csv",
       )
