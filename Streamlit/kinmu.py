@@ -18,7 +18,7 @@ scope = [
    'https://www.googleapis.com/auth/drive'
    ]
 # サービスアカウント認証情報を生成
-creds = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=scope)
+creds = Credentials.from_service_account_file("./Streamlit/pythongs-405212-dee426556119.json", scopes=scope)
 # gspreadで認証
 gc = gspread.authorize(creds)
 # スプレッドシート（ブック）を開く
