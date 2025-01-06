@@ -791,7 +791,7 @@ if start_button and st.session_state.x is None:
 
 st.write(f"score={st.session_state.best_score}")
 if st.session_state.display_text:
-st.markdown(st.session_state.display_text)
+  st.markdown(st.session_state.display_text)
 if st.session_state.x is not None:
   st.write("")
   st.subheader(f"{st.session_state.YEAR}年{st.session_state.MONTH}月の勤務表")
