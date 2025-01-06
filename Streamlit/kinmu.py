@@ -768,14 +768,16 @@ if start_button:
       top = parents[0]
       
       # 最強個体の保存
-      x = top[1]
+      st.session_state.x = top[1]
       x = x.replace("1", "休")
       x = x.replace("0", "")
-      csv = x.to_csv(index=False, header=False).encode("utf-8_sig")
+      csv = st.session_state.x.to_csv(index=False, header=False).encode("utf-8_sig")
       
       st.success("処理が完了しました！")
       st.text(top[2])
 
+      st.dataframe(st.session_state.x)
+     
       st.download_button(
          label="結果をCSVでダウンロード",
          data=csv,
