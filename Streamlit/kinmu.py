@@ -650,6 +650,9 @@ def check_ALL(df):
 
   return score_sum, text
 
+# セッション状態を初期化
+if "x" not in st.session_state:
+    st.session_state.x = None
 
 st.title('勤務表生成システムβ')
 
@@ -774,28 +777,31 @@ if start_button:
     st.session_state.x = st.session_state.x.replace("1", "休")
     st.session_state.x = st.session_state.x.replace("0", "")
     st.session_state.x.index = member["勤務者"].values
-    csv1 = st.session_state.x.to_csv(index=False, header=False).encode("utf-8_sig")
-    csv2 = st.session_state.x.to_csv(index=True, header=True).encode("utf-8_sig")
     
     st.success("処理が完了しました！")
     my_bar.empty()
-    st.text(top[2])
+    st.write(f"score={top[0]}")
+    st.markdown(top[2])
 
-    st.write(f"{YEAR}年{MONTH}月の勤務表")
-    st.dataframe(st.session_state.x)
-    
-    st.download_button(
-       label="CSV(インデックスなし)",
-       data=csv1,
-       file_name="勤務表.csv",
-       mime="text/csv",
-      )
-    st.download_button(
-       label="CSV(インデックスあり)",
-       data=csv2,
-       file_name="勤務表.csv",
-       mime="text/csv",
-      )
+    if st.session_state.x is not None:
+      st.write("")
+      st.write(f"{YEAR}年{MONTH}月の勤務表")
+      st.dataframe(st.session_state.x)
+  
+      csv1 = st.session_state.x.to_csv(index=False, header=False).encode("utf-8_sig")
+      st.download_button(
+         label="CSV(インデックスなし)",
+         data=csv1,
+         file_name="勤務表(コピー用).csv",
+         mime="text/csv",
+        )
+      csv2 = st.session_state.x.to_csv(index=True, header=True).encode("utf-8_sig")
+      st.download_button(
+         label="CSV(インデックスあり)",
+         data=csv2,
+         file_name="勤務表.csv",
+         mime="text/csv",
+        )
   except Exception as e:
     st.error("失敗しました")
     st.write(e)
