@@ -14,96 +14,131 @@ SPREADSHEET_URL = st.text_input("URLを入力してください")
 generate_length = st.number_input("生成回数を入力", min_value=1, value=50, step=1)
 start_button = st.button("スタート")
 
-# ==スプレッドシートの準備==
+# ==メインの処理==
+if start_button:
+   # URLの検証
+   if not validators.url(url):
+      st.error("入力されたURLが不正です。正しいURLを入力してください。")
+   else:
+      st.info("処理を開始します")
 
-# サービスアカウントキーのパスを指定
-SERVICE_ACCOUNT_FILE = './pythongs-405212-dee426556119.json'
-# 2つのAPIを記述しないとリフレッシュトークンを3600秒毎に発行し続けなければならない
-scope = [
-   'https://www.googleapis.com/auth/spreadsheets',
-   'https://www.googleapis.com/auth/drive'
-   ]
-# サービスアカウント認証情報を生成
-creds = Credentials.from_service_account_file("./Streamlit/pythongs-405212-dee426556119.json", scopes=scope)
-# gspreadで認証
-gc = gspread.authorize(creds)
-# スプレッドシート（ブック）を開く
-workbook = gc.open_by_url(SPREADSHEET_URL)
+      # ==スプレッドシートの準備==
+      
+      # サービスアカウントキーのパスを指定
+      SERVICE_ACCOUNT_FILE = './pythongs-405212-dee426556119.json'
+      # 2つのAPIを記述しないとリフレッシュトークンを3600秒毎に発行し続けなければならない
+      scope = [
+         'https://www.googleapis.com/auth/spreadsheets',
+         'https://www.googleapis.com/auth/drive'
+         ]
+      # サービスアカウント認証情報を生成
+      creds = Credentials.from_service_account_file("./Streamlit/pythongs-405212-dee426556119.json", scopes=scope)
+      # gspreadで認証
+      gc = gspread.authorize(creds)
+      # スプレッドシート（ブック）を開く
+      workbook = gc.open_by_url(SPREADSHEET_URL)
+      
+      worksheet_kakuteibi = workbook.worksheet('確定日')
+      data_kakuteibi = pd.DataFrame(worksheet_kakuteibi.get_all_values())
+      # data_kakuteibiを整える
+      data_kakuteibi = data_kakuteibi.iloc[:, 1:]
+      data_kakuteibi = data_kakuteibi.drop(0)
+      data_kakuteibi = data_kakuteibi.drop(1)
+      data_kakuteibi = data_kakuteibi.drop(2)
+      data_kakuteibi.reset_index(drop=True, inplace=True)
+      data_kakuteibi.iloc[:, 0:7] = data_kakuteibi.iloc[:, 0:7].replace('', 0)
+      data_kakuteibi.columns = [i-6 for i in range(len(data_kakuteibi.columns))]
+      # data_kakuteibi
+      
+      worksheet_kyuuzitsu = workbook.worksheet('休日設定')
+      data_kyuuzitsu = pd.DataFrame(worksheet_kyuuzitsu.get_all_values())
+      # data_kyuuzitsuを整える
+      data_kyuuzitsu = data_kyuuzitsu.iloc[:, 1:]
+      data_kyuuzitsu.loc[2, data_kyuuzitsu.loc[1].str.contains(r'月', na=False) & (data_kyuuzitsu.loc[2] == "FALSE")] = 0
+      data_kyuuzitsu.loc[2, data_kyuuzitsu.loc[1].str.contains(r'火', na=False) & (data_kyuuzitsu.loc[2] == "FALSE")] = 1
+      data_kyuuzitsu.loc[2, data_kyuuzitsu.loc[1].str.contains(r'水', na=False) & (data_kyuuzitsu.loc[2] == "FALSE")] = 2
+      data_kyuuzitsu.loc[2, data_kyuuzitsu.loc[1].str.contains(r'木', na=False) & (data_kyuuzitsu.loc[2] == "FALSE")] = 3
+      data_kyuuzitsu.loc[2, data_kyuuzitsu.loc[1].str.contains(r'金', na=False) & (data_kyuuzitsu.loc[2] == "FALSE")] = 4
+      data_kyuuzitsu.loc[2, data_kyuuzitsu.loc[1].str.contains(r'土', na=False) & (data_kyuuzitsu.loc[2] == "FALSE")] = 5
+      data_kyuuzitsu.loc[2, data_kyuuzitsu.loc[1].str.contains(r'日', na=False) & (data_kyuuzitsu.loc[2] == "FALSE")] = 6
+      data_kyuuzitsu.loc[2, data_kyuuzitsu.loc[2] == "TRUE"] = 7
+      data_kyuuzitsu = data_kyuuzitsu.drop(0)
+      data_kyuuzitsu = data_kyuuzitsu.drop(1)
+      data_kyuuzitsu.reset_index(drop=True, inplace=True)
+      # data_kyuuzitsu
+      
+      # kyuuzitsu_allも作成
+      kyuuzitsu_all = data_kyuuzitsu.copy()
+      kyuuzitsu_new = pd.DataFrame(worksheet_kakuteibi.get_all_values()).iloc[:, 1:].drop(0).drop(1).iloc[:, :7]
+      kyuuzitsu_new = kyuuzitsu_new[:1]
+      kyuuzitsu_new = kyuuzitsu_new.replace({
+          '(月)': "0",
+          '(火)': "1",
+          '(水)': "2",
+          '(木)': "3",
+          '(金)': "4",
+          '(土)': "5",
+          '(日)': "6"
+      }, regex=False)
+      kyuuzitsu_new = kyuuzitsu_new.reset_index(drop=True, inplace=True)
+      kyuuzitsu_all = pd.concat([kyuuzitsu_new, kyuuzitsu_all], axis=1)
+      kyuuzitsu_all.columns = [i-6 for i in range(len(kyuuzitsu_all.columns))]
+      
+      worksheet_member = workbook.worksheet('メンバーリスト')
+      data_member = pd.DataFrame(worksheet_member.get_all_values())
+      # data_memberを整える
+      data_member.columns = data_member.iloc[0]
+      data_member = data_member.drop(0)
+      data_member.reset_index(drop=True, inplace=True)
+      member = data_member.iloc[:, 0:2].reset_index(drop=True)
+      holiday = data_member.iloc[:, 2].reset_index(drop=True)
+      holiday.columns = ['休暇月計']
+      role = data_member.iloc[:, 3:].reset_index(drop=True)
+      # member
+      # holiday
+      # role
+      
+      worksheet_setting = workbook.worksheet('設定')
+      data_setting = pd.DataFrame(worksheet_setting.get_all_values())
+      # data_settingから必要な情報を取得
+      data_setting
+      YEAR = data_setting.iloc[0,1]
+      MONTH = data_setting.iloc[1,1]
+      HOLIDAYS = data_setting.iloc[2,1]
+      # print(f"年：{YEAR}")
+      # print(f"月：{MONTH}")
+      # print(f"休日数：{HOLIDAYS}")
+      
+      # 1か月の日数
+      days = len(data_kakuteibi.columns)-7
+      # days
 
-worksheet_kakuteibi = workbook.worksheet('確定日')
-data_kakuteibi = pd.DataFrame(worksheet_kakuteibi.get_all_values())
-# data_kakuteibiを整える
-data_kakuteibi = data_kakuteibi.iloc[:, 1:]
-data_kakuteibi = data_kakuteibi.drop(0)
-data_kakuteibi = data_kakuteibi.drop(1)
-data_kakuteibi = data_kakuteibi.drop(2)
-data_kakuteibi.reset_index(drop=True, inplace=True)
-data_kakuteibi.iloc[:, 0:7] = data_kakuteibi.iloc[:, 0:7].replace('', 0)
-data_kakuteibi.columns = [i-6 for i in range(len(data_kakuteibi.columns))]
-# data_kakuteibi
+      list = []
+      for i in range(generate_length):
+        parent = create_main(data_kakuteibi)
+        score, text = check_ALL(parent)
+        list.append([score, parent, text])
+        print(f"score{i+1}={score}")
+      
+      # 点数で並び替え
+      parents = sorted(list, key=lambda x: -x[0])
+      top = parents[0]
+      
+      # 最強個体の保存
+      x = top[1]
+      x = x.replace("1", "休")
+      x = x.replace("0", "")
+      csv = x.to_csv(index=False, header=False).encode("utf-8_sig")
+      
+      st.success("処理が完了しました！")
+      st.text(top[2])
 
-worksheet_kyuuzitsu = workbook.worksheet('休日設定')
-data_kyuuzitsu = pd.DataFrame(worksheet_kyuuzitsu.get_all_values())
-# data_kyuuzitsuを整える
-data_kyuuzitsu = data_kyuuzitsu.iloc[:, 1:]
-data_kyuuzitsu.loc[2, data_kyuuzitsu.loc[1].str.contains(r'月', na=False) & (data_kyuuzitsu.loc[2] == "FALSE")] = 0
-data_kyuuzitsu.loc[2, data_kyuuzitsu.loc[1].str.contains(r'火', na=False) & (data_kyuuzitsu.loc[2] == "FALSE")] = 1
-data_kyuuzitsu.loc[2, data_kyuuzitsu.loc[1].str.contains(r'水', na=False) & (data_kyuuzitsu.loc[2] == "FALSE")] = 2
-data_kyuuzitsu.loc[2, data_kyuuzitsu.loc[1].str.contains(r'木', na=False) & (data_kyuuzitsu.loc[2] == "FALSE")] = 3
-data_kyuuzitsu.loc[2, data_kyuuzitsu.loc[1].str.contains(r'金', na=False) & (data_kyuuzitsu.loc[2] == "FALSE")] = 4
-data_kyuuzitsu.loc[2, data_kyuuzitsu.loc[1].str.contains(r'土', na=False) & (data_kyuuzitsu.loc[2] == "FALSE")] = 5
-data_kyuuzitsu.loc[2, data_kyuuzitsu.loc[1].str.contains(r'日', na=False) & (data_kyuuzitsu.loc[2] == "FALSE")] = 6
-data_kyuuzitsu.loc[2, data_kyuuzitsu.loc[2] == "TRUE"] = 7
-data_kyuuzitsu = data_kyuuzitsu.drop(0)
-data_kyuuzitsu = data_kyuuzitsu.drop(1)
-data_kyuuzitsu.reset_index(drop=True, inplace=True)
-# data_kyuuzitsu
-
-# kyuuzitsu_allも作成
-kyuuzitsu_all = data_kyuuzitsu.copy()
-kyuuzitsu_new = pd.DataFrame(worksheet_kakuteibi.get_all_values()).iloc[:, 1:].drop(0).drop(1).iloc[:, :7]
-kyuuzitsu_new = kyuuzitsu_new[:1]
-kyuuzitsu_new = kyuuzitsu_new.replace({
-    '(月)': "0",
-    '(火)': "1",
-    '(水)': "2",
-    '(木)': "3",
-    '(金)': "4",
-    '(土)': "5",
-    '(日)': "6"
-}, regex=False)
-kyuuzitsu_new = kyuuzitsu_new.reset_index(drop=True, inplace=True)
-kyuuzitsu_all = pd.concat([kyuuzitsu_new, kyuuzitsu_all], axis=1)
-kyuuzitsu_all.columns = [i-6 for i in range(len(kyuuzitsu_all.columns))]
-
-worksheet_member = workbook.worksheet('メンバーリスト')
-data_member = pd.DataFrame(worksheet_member.get_all_values())
-# data_memberを整える
-data_member.columns = data_member.iloc[0]
-data_member = data_member.drop(0)
-data_member.reset_index(drop=True, inplace=True)
-member = data_member.iloc[:, 0:2].reset_index(drop=True)
-holiday = data_member.iloc[:, 2].reset_index(drop=True)
-holiday.columns = ['休暇月計']
-role = data_member.iloc[:, 3:].reset_index(drop=True)
-# member
-# holiday
-# role
-
-worksheet_setting = workbook.worksheet('設定')
-data_setting = pd.DataFrame(worksheet_setting.get_all_values())
-# data_settingから必要な情報を取得
-data_setting
-YEAR = data_setting.iloc[0,1]
-MONTH = data_setting.iloc[1,1]
-HOLIDAYS = data_setting.iloc[2,1]
-# print(f"年：{YEAR}")
-# print(f"月：{MONTH}")
-# print(f"休日数：{HOLIDAYS}")
-
-# 1か月の日数
-days = len(data_kakuteibi.columns)-7
-# days
+      st.download_button(
+         label="結果をCSVでダウンロード",
+         data=csv,
+         file_name="勤務表.csv",
+         mime="text/csv",
+        )
 
 # 初期生成用の関数
 def create_main(df):
@@ -748,38 +783,3 @@ def check_ALL(df):
   )
 
   return score_sum, text
-
-# ==メインの処理==
-if start_button:
-   # URLの検証
-   if not validators.url(url):
-      st.error("入力されたURLが不正です。正しいURLを入力してください。")
-   else:
-      st.info("処理を開始します")
-
-      list = []
-      for i in range(generate_length):
-        parent = create_main(data_kakuteibi)
-        score, text = check_ALL(parent)
-        list.append([score, parent, text])
-        print(f"score{i+1}={score}")
-      
-      # 点数で並び替え
-      parents = sorted(list, key=lambda x: -x[0])
-      top = parents[0]
-      
-      # 最強個体の保存
-      x = top[1]
-      x = x.replace("1", "休")
-      x = x.replace("0", "")
-      csv = x.to_csv(index=False, header=False).encode("utf-8_sig")
-      
-      st.success("処理が完了しました！")
-      st.text(top[2])
-
-      st.download_button(
-         label="結果をCSVでダウンロード",
-         data=csv,
-         file_name="勤務表.csv",
-         mime="text/csv",
-        )
