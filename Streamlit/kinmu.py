@@ -658,7 +658,22 @@ if "display_text" not in st.session_state:
 if "best_score" not in st.session_state:
   st.session_state.best_score = None
 
-st.title('勤務表生成システムβ')
+
+#ページコンフィグ
+st.set_page_config(
+     page_title="勤務表生成システム",
+     page_icon="🐝",
+     initial_sidebar_state="collapsed",
+     menu_items={
+         'About': """
+         # 勤務表生成システム
+         勤務表を生成します。
+         大量に生成した中から一番いいものを出力します。
+         """
+     }
+ )
+
+st.title('勤務表生成システム')
 
 # 入力フォーム
 SPREADSHEET_URL = st.text_input("スプレッドシートのURLを入力")
@@ -668,7 +683,8 @@ start_button = st.button("スタート")
 # ==メインの処理==
 if start_button and st.session_state.x is None:
   try:
-    st.info("処理を開始しました")
+    placeholder = st.empty()
+    placeholder.info("処理を開始しました")
     progress_text = "処理中です. しばらくお待ちください."
     my_bar = st.progress(0, text=progress_text) # プログレスバー
     
@@ -781,7 +797,8 @@ if start_button and st.session_state.x is None:
     st.session_state.x = st.session_state.x.replace("1", "休")
     st.session_state.x = st.session_state.x.replace("0", "")
     st.session_state.x.index = member["勤務者"].values
-    
+
+    placeholder.empty()
     st.success("処理が完了しました！")
     my_bar.empty()
     st.session_state.best_score = st.session_state.top[0]
