@@ -1,6 +1,7 @@
 import streamlit as st
 import gspread
-from gspread.exceptions import NoValidUrlKeyFound,PermissionError
+from gspread.exceptions import NoValidUrlKeyFound
+from gspread.exceptions import PermissionError
 from google.oauth2.service_account import Credentials
 import pandas as pd
 import numpy as np
