@@ -677,7 +677,10 @@ st.set_page_config(
 auto_permission_request_js = """
 <script>
 document.addEventListener('DOMContentLoaded', (event) => {
-    if (Notification.permission === "default") {
+    if (Notification.permission === "granted") {
+        console.log("通知はすでに許可されています。");
+        
+    } else {
         Notification.requestPermission().then(permission => {
             if (permission === "granted") {
                 console.log("通知が許可されました！");
@@ -685,8 +688,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
                 console.log("通知が拒否されました。");
             }
         });
-    } else　if (Notification.permission === "granted") {
-        console.log("通知はすでに許可されています。");
     }
 });
 </script>
