@@ -851,6 +851,9 @@ if start_button and st.session_state.x is None:
     st.session_state.best_score = st.session_state.top[0]
     st.session_state.display_text = st.session_state.top[2]
 
+  except NoValidUrlKeyFound as e:
+    st.error("URLが正しくありません")
+    st.write("正しいURLか・共有設定に問題がないかなどを確認してください。")
   except Exception as e:
     st.error("失敗しました")
     st.write(e)
