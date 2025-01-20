@@ -853,12 +853,18 @@ if start_button and st.session_state.x is None:
     st.session_state.display_text = st.session_state.top[2]
 
   except NoValidUrlKeyFound as e:
+    placeholder.empty()
+    my_bar.empty()
     st.error("URLが正しくありません")
   except PermissionError as e:
+    placeholder.empty()
+    my_bar.empty()
     st.error("スプレッドシートの共有設定で「リンクを知っている全員」にアクセスを許可してください")
   except Exception as e:
+    placeholder.empty()
+    my_bar.empty()
     st.error("失敗しました")
-    st.write(f"エラークラス: {type(e).__name__}")
+    # st.write(f"エラークラス: {type(e).__name__}")
     st.write(e)
 
 if st.session_state.best_score:
