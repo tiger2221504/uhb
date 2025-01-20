@@ -1,6 +1,6 @@
 import streamlit as st
 import gspread
-from gspread.exceptions import NoValidUrlKeyFound
+from gspread.exceptions import NoValidUrlKeyFound,PermissionError
 from google.oauth2.service_account import Credentials
 import pandas as pd
 import numpy as np
@@ -854,6 +854,8 @@ if start_button and st.session_state.x is None:
 
   except NoValidUrlKeyFound as e:
     st.error("URLが正しくありません")
+  except PermissionError as e:
+    st.error("スプレッドシートの共有設定で「リンクを知っている全員」にアクセスを許可してください")
   except Exception as e:
     st.error("失敗しました")
     st.write(f"エラークラス: {type(e).__name__}")
