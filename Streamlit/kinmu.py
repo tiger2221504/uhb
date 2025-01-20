@@ -856,6 +856,7 @@ if start_button and st.session_state.x is None:
       st.error("URLが正しくありません")
     else:
       st.error("失敗しました")
+      st.write(f"エラークラス: {type(e).__name__}")
       st.write(e)
 
 if st.session_state.best_score:
