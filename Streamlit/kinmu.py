@@ -715,9 +715,14 @@ if start_button and st.session_state.x is None:
     data_kakuteibi.iloc[:, 0:7] = data_kakuteibi.iloc[:, 0:7].replace('', 0)
     data_kakuteibi.columns = [i-6 for i in range(len(data_kakuteibi.columns))]
     # data_kakuteibi
+
+    # 1か月の日数
+    days = len(data_kakuteibi.columns)-7
+    # days
     
     worksheet_kyuuzitsu = workbook.worksheet('休日設定')
     data_kyuuzitsu = pd.DataFrame(worksheet_kyuuzitsu.get_all_values())
+    data_kyuuzitsu = data_kyuuzitsu.loc[:, :days]
     # data_kyuuzitsuを整える
     data_kyuuzitsu = data_kyuuzitsu.iloc[:, 1:]
     data_kyuuzitsu.loc[2, data_kyuuzitsu.loc[1].str.contains(r'月', na=False) & (data_kyuuzitsu.loc[2] == "FALSE")] = 0
@@ -775,9 +780,6 @@ if start_button and st.session_state.x is None:
     # print(f"月：{MONTH}")
     # print(f"休日数：{HOLIDAYS}")
     
-    # 1か月の日数
-    days = len(data_kakuteibi.columns)-7
-    # days
     my_bar.progress(1/(generate_length+1), text=progress_text)
     
     list = []
