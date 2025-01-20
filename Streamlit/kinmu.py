@@ -852,7 +852,7 @@ if start_button and st.session_state.x is None:
     st.session_state.display_text = st.session_state.top[2]
 
   except Exception as e:
-    if "NoValidUrlKeyFound" in str(e):
+    if "extract_id_from_url(url)" in str(e):
       st.error("URLが正しくありません")
     else:
       st.error("失敗しました")
