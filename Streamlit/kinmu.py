@@ -802,6 +802,26 @@ if start_button and st.session_state.x is None:
 
     placeholder.empty()
     st.success("処理が完了しました！")
+
+    # JavaScriptで通知を表示するコード
+    notification_js = """
+    <script>
+    function showNotification() {
+        if (Notification.permission === "granted") {
+            new Notification("処理が完了しました！ 🎉");
+        } else if (Notification.permission !== "denied") {
+            Notification.requestPermission().then(permission => {
+                if (permission === "granted") {
+                    new Notification("処理が完了しました！ 🎉");
+                }
+            });
+        }
+    }
+    showNotification();
+    </script>
+    """
+    st.components.v1.html(notification_js)
+
     my_bar.empty()
     st.session_state.best_score = st.session_state.top[0]
     st.session_state.display_text = st.session_state.top[2]
