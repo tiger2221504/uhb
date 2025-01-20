@@ -26,9 +26,9 @@ def create_main(df):
             x = np.random.randint(0,len(kiso_table))
             if role["泊16"][x]=="TRUE" and kiso_table.iloc[x, j] =="":
               kiso_table.iloc[x, j] = "泊16"
-              if j<days:
+              if j+1<kiso_table.shape[1]:
                 kiso_table.iloc[x, j+1] = "明"
-                if j<days-1:
+                if j+2<kiso_table.shape[1]:
                   kiso_table.iloc[x, j+2] = "休"
               break
       else:
@@ -719,6 +719,17 @@ if start_button and st.session_state.x is None:
     # 1か月の日数
     days = len(data_kakuteibi.columns)-7
     # days
+
+    worksheet_setting = workbook.worksheet('設定')
+    data_setting = pd.DataFrame(worksheet_setting.get_all_values())
+    # data_settingから必要な情報を取得
+    # data_setting
+    st.session_state.YEAR = data_setting.iloc[0,1]
+    st.session_state.MONTH = data_setting.iloc[1,1]
+    HOLIDAYS = data_setting.iloc[2,1]
+    # print(f"年：{YEAR}")
+    # print(f"月：{MONTH}")
+    # print(f"休日数：{HOLIDAYS}")
     
     worksheet_kyuuzitsu = workbook.worksheet('休日設定')
     data_kyuuzitsu = pd.DataFrame(worksheet_kyuuzitsu.get_all_values())
@@ -768,17 +779,6 @@ if start_button and st.session_state.x is None:
     # member
     # holiday
     # role
-    
-    worksheet_setting = workbook.worksheet('設定')
-    data_setting = pd.DataFrame(worksheet_setting.get_all_values())
-    # data_settingから必要な情報を取得
-    # data_setting
-    st.session_state.YEAR = data_setting.iloc[0,1]
-    st.session_state.MONTH = data_setting.iloc[1,1]
-    HOLIDAYS = data_setting.iloc[2,1]
-    # print(f"年：{YEAR}")
-    # print(f"月：{MONTH}")
-    # print(f"休日数：{HOLIDAYS}")
     
     my_bar.progress(1/(generate_length+1), text=progress_text)
     
