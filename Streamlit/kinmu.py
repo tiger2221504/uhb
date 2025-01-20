@@ -673,6 +673,31 @@ st.set_page_config(
      }
  )
 
+# JavaScriptで起動時に通知の許可をリクエスト
+auto_permission_request_js = """
+<script>
+document.addEventListener('DOMContentLoaded', (event) => {
+    if (Notification.permission === "default") {
+        Notification.requestPermission().then(permission => {
+            if (permission === "granted") {
+                console.log("通知が許可されました！");
+            } else if (permission === "denied") {
+                console.log("通知が拒否されました。");
+            }
+        });
+    } else if (Notification.permission === "granted") {
+        console.log("通知はすでに許可されています。");
+    } else {
+        console.log("通知が拒否されています。ブラウザ設定を確認してください。");
+    }
+});
+</script>
+"""
+
+# StreamlitでJavaScriptを埋め込む
+st.components.v1.html(auto_permission_request_js, height=0)
+
+
 st.title('勤務表生成システム')
 
 # 入力フォーム
