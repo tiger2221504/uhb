@@ -685,10 +685,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
                 console.log("通知が拒否されました。");
             }
         });
-    } else if (Notification.permission === "granted") {
+    } else　if (Notification.permission === "granted") {
         console.log("通知はすでに許可されています。");
-    } else {
-        console.log("通知が拒否されています。ブラウザ設定を確認してください。");
     }
 });
 </script>
