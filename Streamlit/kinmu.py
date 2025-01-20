@@ -851,13 +851,12 @@ if start_button and st.session_state.x is None:
     st.session_state.best_score = st.session_state.top[0]
     st.session_state.display_text = st.session_state.top[2]
 
+  except NoValidUrlKeyFound as e:
+    st.error("URLが正しくありません")
   except Exception as e:
-    if "extract_id_from_url(url)" in str(e):
-      st.error("URLが正しくありません")
-    else:
-      st.error("失敗しました")
-      st.write(f"エラークラス: {type(e).__name__}")
-      st.write(e)
+    st.error("失敗しました")
+    st.write(f"エラークラス: {type(e).__name__}")
+    st.write(e)
 
 if st.session_state.best_score:
   st.write(f"score={st.session_state.best_score}")
