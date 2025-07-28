@@ -288,7 +288,7 @@ def main():
             for i, segment in enumerate(transcript.segments):
                 texts += f"{segment.text}\n"
             with st.expander("音声認識結果を表示（クリックで開閉）", expanded=False):
-                st.text_area("音声認識結果", texts, height=250)
+                st.text_area("", texts, height=250)
     
         # 各セグメントをテキストにまとめる
         segment_texts = ""
@@ -401,6 +401,9 @@ def main():
                     return None
     
             video_configs = extract_json(gpt_output)
+            # ★デバッグ用
+            st.text_area("video_configs", video_configs, height=250)
+            
             if not video_configs:
                 st.error("JSON構造が見つかりませんでした。もう一度やり直してください。")
                 st.stop()
