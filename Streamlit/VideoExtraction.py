@@ -431,10 +431,10 @@ def main():
                         c1, c2 = st.columns([1, 1])
                         with c1:
                             st.markdown(f"**見出し①**")
-                            st.info(config['headline'][0'])
+                            st.info(config['headline'][0])
                         with c2:
                             st.markdown(f"**見出し②**")
-                            st.info(config['headline'][1'])
+                            st.info(config['headline'][1])
                         st.markdown("**切り出し区間（秒）**")
                         for seg in config['segments']:
                             st.markdown(
