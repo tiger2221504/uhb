@@ -279,7 +279,7 @@ def main():
             else:
                 # アップロード時刻でキャッシュ管理
                 prev_upload_time = st.session_state.get("upload_time")
-            msg3 = st.empty()
+                msg3 = st.empty()
                 # 新しい動画がアップロードされた場合だけキャッシュリセット
                 now_upload_time = str(int(time.time()))  # 秒単位のタイムスタンプ（文字列化）
                 if not prev_upload_time or st.session_state.get("uploaded_file_obj") != uploaded_file:
