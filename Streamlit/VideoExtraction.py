@@ -185,6 +185,7 @@ def main():
     api_key = ""
     gpt_model = "gpt-4.1"
     uploaded_file = None
+    temp_video_path = None
 
     st.set_page_config(page_title="動画切り取りアプリ",page_icon="🎬", layout="wide")
     st.title("動画切り取りアプリ✂️")
@@ -241,7 +242,7 @@ def main():
 
         # 動画アップロード
         if not st.session_state.logged_in:
-            st.warning("まずはログインしてください")
+            st.warning("👈まずはログインしてください")
         if st.session_state.logged_in:
             st.header("■動画ファイルをアップロード")
             uploaded_file = st.file_uploader(
@@ -249,21 +250,21 @@ def main():
                 type=["mp4"],
                 accept_multiple_files=False
             )
-        if st.session_state.logged_in and uploaded_file is None:
-            st.warning("動画ファイルをアップロードしてください")
-            st.stop()
-
-        if uploaded_file is not None:
-            msg2.empty()
-            msg3.success("アップロードが完了しました！")
-            base_file_name = os.path.splitext(os.path.basename(uploaded_file.name))[0]
-            output_file_name = base_file_name + "_切り出し"
-            temp_video = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4')
-            temp_video.write(uploaded_file.getbuffer())
-            temp_video_path = temp_video.name
-            temp_video.close()
-        else:
-            st.info("対応フォーマット：mp4のみ")
+            if st.session_state.logged_in and uploaded_file is None:
+                st.warning("動画ファイルをアップロードしてください")
+                st.stop()
+    
+            if uploaded_file is not None:
+                msg2.empty()
+                msg3.success("アップロードが完了しました！")
+                base_file_name = os.path.splitext(os.path.basename(uploaded_file.name))[0]
+                output_file_name = base_file_name + "_切り出し"
+                temp_video = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4')
+                temp_video.write(uploaded_file.getbuffer())
+                temp_video_path = temp_video.name
+                temp_video.close()
+            elif uploaded_file:
+                st.info("対応フォーマット：mp4のみ")
 
         # Whisperで音声抽出＆認識
         audio_tmp = tempfile.NamedTemporaryFile(delete=False, suffix='.mp3')
