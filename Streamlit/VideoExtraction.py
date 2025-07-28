@@ -7,6 +7,7 @@ import re
 import openai
 from moviepy.editor import VideoFileClip
 import time
+os.system("apt-get update && apt-get install -y ffmpeg")
 
 # ==関数==
 # 動画の長さ取得
