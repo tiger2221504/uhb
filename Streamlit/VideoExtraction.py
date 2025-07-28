@@ -332,6 +332,7 @@ def main():
                 texts += f"{segment.text}\n"
             with st.expander("音声認識結果を表示（クリックで開閉）", expanded=False):
                 st.text_area("", texts, height=250)
+            st.markdown("---")
         
         # 各セグメントをテキストにまとめる
         segment_texts = ""
