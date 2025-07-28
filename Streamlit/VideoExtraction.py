@@ -413,36 +413,40 @@ def main():
                     return None
     
             video_configs = extract_json(gpt_output)
-            # ★デバッグ用
-            st.text_area("video_configs", video_configs, height=250)
             
             if not video_configs:
                 st.error("JSON構造が見つかりませんでした。もう一度やり直してください。")
                 st.stop()
     
-            # ユーザーが作りたい案を選択
+            # 候補が決まったら
             st.session_state["video_configs"] = video_configs
-            st.success("AIが候補を生成しました。出力したいものを選択して進んでください。")
+            if "video_configs" in st.session_state:
+                video_configs = st.session_state["video_configs"]
+                num_videos = len(video_configs)
+                st.success(f"{num_videos}本の候補が生成されました。動画に切り出します。")
 
-        # 切り出し案の選択～ffmpegで実処理
-        if "video_configs" in st.session_state:
-            video_configs = st.session_state["video_configs"]
-            st.header("生成したい案を選んで動画を生成")
-            selected_indices = []
-            for i, config in enumerate(video_configs):
-                checked = st.checkbox(f"候補{i+1}: {config['headline']}", key=f"checkbox_{i}")
-                if checked:
-                    selected_indices.append(i)
-                    st.write("見出し①:", config['headline'][0])
-                    st.write("見出し②:", config['headline'][1])
-                    st.write("区間:", config['segments'])
+                # 案の内容を確認
+                for i, config in enumerate(video_configs):
+                    with st.expander(f"候補 {i+1}: {config['headline'][0]} ／ {config['headline'][1]}", expanded=False):
+                        c1, c2 = st.columns([1, 1])
+                        with c1:
+                            st.markdown(f"**見出し①**")
+                            st.info(config['headline'][0'])
+                        with c2:
+                            st.markdown(f"**見出し②**")
+                            st.info(config['headline'][1'])
+                        st.markdown("**切り出し区間（秒）**")
+                        for seg in config['segments']:
+                            st.markdown(
+                                f"- ⏱️ **{seg['start']:.1f}** ～ **{seg['end']:.1f}**"
+                            )
         
-            if st.button("動画を切り出して生成"):
-                with st.spinner("動画を切り出し中…"):
-                    # ↓ ffmpegで切り出し＆結合部分をColabコードに準拠して実装
-                    # 必要な関数（get_video_duration, concat_clips_ffmpeg, has_audio_stream, merge_overlapping_segments, process_segment, process_multiple_videos）を流用可
-                    # ...
-                    st.success("動画が完成しました！（ダウンロードは後ほど追加可）")
+                if st.button("動画を切り出して生成"):
+                    with st.spinner("動画を切り出し中…"):
+                        # ↓ ffmpegで切り出し＆結合部分をColabコードに準拠して実装
+                        # 必要な関数（get_video_duration, concat_clips_ffmpeg, has_audio_stream, merge_overlapping_segments, process_segment, process_multiple_videos）を流用可
+                        # ...
+                        st.success("動画が完成しました！（ダウンロードは後ほど追加可）")
 
     except Exception as e:
         err_msg = str(e)
