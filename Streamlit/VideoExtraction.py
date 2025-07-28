@@ -179,6 +179,25 @@ def extract_json(gpt_output):
         st.write(cleaned_json)
         return None
 
+# JSON部分だけ抽出
+def extract_json(gpt_output):
+    match = re.search(r"(\[\s*{.*}\s*\])", gpt_output, re.DOTALL)
+    if not match:
+        return None
+    raw_json = match.group(1)
+    cleaned_json = (
+        raw_json
+        .replace("“", '"')
+        .replace("”", '"')
+        .replace("‘", "'")
+        .replace("’", "'")
+        .strip()
+    )
+    try:
+        return json.loads(cleaned_json)
+    except json.JSONDecodeError:
+        return None
+
 # ここからメイン
 def main():
     USER_CREDENTIALS = st.secrets["USER_CREDENTIALS"]
@@ -255,11 +274,21 @@ def main():
                 st.warning("動画ファイルをアップロードしてください")
                 st.stop()
             else:
+                # アップロード時刻でキャッシュ管理
+                prev_upload_time = st.session_state.get("upload_time")
+            
+                # 新しい動画がアップロードされた場合だけキャッシュリセット
+                now_upload_time = str(int(time.time()))  # 秒単位のタイムスタンプ（文字列化）
+                if not prev_upload_time or st.session_state.get("uploaded_file_obj") != uploaded_file:
+                    st.session_state["upload_time"] = now_upload_time
+                    st.session_state["uploaded_file_obj"] = uploaded_file
+                    st.session_state["video_configs"] = None
+                    st.session_state["transcript"] = None
                 msg2.empty()
                 msg3.success("アップロードが完了しました！")
                 video_configs = None
                 base_file_name = os.path.splitext(os.path.basename(uploaded_file.name))[0]
-                output_file_name = base_file_name + "_切り出し"
+                output_file_name = f"output_{st.session_state['upload_time']}_"
                 temp_video = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4')
                 temp_video.write(uploaded_file.getbuffer())
                 temp_video_path = temp_video.name
@@ -383,36 +412,21 @@ def main():
 """ + segment_texts
 
             client = openai.OpenAI(api_key=api_key)
-            response = client.chat.completions.create(
-                model=gpt_model,
-                messages=[
-                    {"role": "system", "content": "あなたはテレビ局でニュース動画をネット配信するプロのディレクターです。"},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.7
-            )
-            gpt_output = response.choices[0].message.content
-    
-            # JSON部分だけ抽出
-            def extract_json(gpt_output):
-                match = re.search(r"(\[\s*{.*}\s*\])", gpt_output, re.DOTALL)
-                if not match:
-                    return None
-                raw_json = match.group(1)
-                cleaned_json = (
-                    raw_json
-                    .replace("“", '"')
-                    .replace("”", '"')
-                    .replace("‘", "'")
-                    .replace("’", "'")
-                    .strip()
-                )
-                try:
-                    return json.loads(cleaned_json)
-                except json.JSONDecodeError:
-                    return None
-    
-            video_configs = extract_json(gpt_output)
+                if st.session_state.get("video_configs") is None:
+                    response = client.chat.completions.create(
+                        model=gpt_model,
+                        messages=[
+                            {"role": "system", "content": "あなたはテレビ局でニュース動画をネット配信するプロのディレクターです。"},
+                            {"role": "user", "content": prompt}
+                        ],
+                        temperature=0.7
+                    )
+                    gpt_output = response.choices[0].message.content
+        
+                    video_configs = extract_json(gpt_output)
+                    st.session_state["video_configs"] = video_configs
+                else:
+                    video_configs = st.session_state["video_configs"]
             
             if not video_configs:
                 st.error("JSON構造が見つかりませんでした。もう一度やり直してください。")
@@ -430,10 +444,10 @@ def main():
                     with st.expander(f"候補 {i+1}: {config['headline'][0]} ／ {config['headline'][1]}", expanded=False):
                         c1, c2 = st.columns([1, 1])
                         with c1:
-                            st.markdown(f"**見出し①**")
+                            st.markdown(f"**見出し案①**")
                             st.info(config['headline'][0])
                         with c2:
-                            st.markdown(f"**見出し②**")
+                            st.markdown(f"**見出し案②**")
                             st.info(config['headline'][1])
                         st.markdown("**切り出し区間（秒）**")
                         for seg in config['segments']:
@@ -446,7 +460,7 @@ def main():
                         # ↓ ffmpegで切り出し＆結合部分をColabコードに準拠して実装
                         # 必要な関数（get_video_duration, concat_clips_ffmpeg, has_audio_stream, merge_overlapping_segments, process_segment, process_multiple_videos）を流用可
                         # ...
-                        st.success("動画が完成しました！（ダウンロードは後ほど追加可）")
+                        st.success("動画が完成しました！（ダウンロードは後ほど追加）")
 
     except Exception as e:
         err_msg = str(e)
