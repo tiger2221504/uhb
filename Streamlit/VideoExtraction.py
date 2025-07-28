@@ -408,7 +408,7 @@ def main():
             # ユーザーが作りたい案を選択
             st.session_state["video_configs"] = video_configs
             st.success("AIが候補を生成しました。出力したいものを選択して進んでください。")
-            st.experimental_rerun()
+            st.rerun()
 
         # 切り出し案の選択～ffmpegで実処理
         if "video_configs" in st.session_state:
