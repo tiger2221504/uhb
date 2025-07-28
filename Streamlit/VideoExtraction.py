@@ -5,7 +5,6 @@ import subprocess
 import json
 import re
 import openai
-import tiktoken
 from moviepy.editor import VideoFileClip
 import time
 
