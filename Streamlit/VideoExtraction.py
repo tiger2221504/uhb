@@ -8,10 +8,6 @@ import openai
 from moviepy.editor import VideoFileClip
 import time
 
-USER_CREDENTIALS = st.secrets["USER_CREDENTIALS"]
-api_key = ""
-gpt_model = "gpt-4.1"
-
 # ==関数==
 # 動画の長さ取得
 def get_video_duration(video_path):
@@ -183,7 +179,12 @@ def extract_json(gpt_output):
         st.write(cleaned_json)
         return None
 
+# ここからメイン
 def main():
+    USER_CREDENTIALS = st.secrets["USER_CREDENTIALS"]
+    api_key = ""
+    gpt_model = "gpt-4.1"
+
     st.set_page_config(page_title="動画切り取りアプリ",page_icon="🎬", layout="wide")
     st.title("動画切り取りアプリ✂️")
 
@@ -192,6 +193,8 @@ def main():
         st.session_state.logged_in = False
     if "username" not in st.session_state:
         st.session_state.username = ""
+    if "api_key" not in st.session_state:
+        st.session_state.api_key = ""
     
     try:
         msg = st.sidebar.empty()
