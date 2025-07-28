@@ -439,7 +439,8 @@ def main():
         elif "'invalid_request_error', 'param': None" in err_msg.lower():
             st.error("ページ更新後、ログインしなおしてください")
         else:
-            st.error(f"予期しないエラーが発生しました: {e}")
+            if st.session_state.logged_in:
+                st.error(f"予期しないエラーが発生しました: {e}")
 
 if __name__ == '__main__':
     main()
