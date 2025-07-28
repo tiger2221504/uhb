@@ -277,10 +277,21 @@ def main():
             # テキスト表示
             texts = ""
             for i, segment in enumerate(transcript.segments):
-                texts += f"{segment['text']}\n"
+                texts += f"{segment.text}\n"
             with st.expander("音声認識結果を表示（クリックで開閉）", expanded=False):
                 st.text_area("音声認識結果", texts, height=250)
     
+        # 各セグメントをテキストにまとめる
+        segment_texts = ""
+        for i, segment in enumerate(transcript.segments):
+            start = segment.start
+            end = segment.end
+            text = segment.text
+        
+            segment_texts += (f"[Segment {i}] {start:.2f}s - {end:.2f}s\n")
+            segment_texts += (f"Text: {text}\n")
+            segment_texts += ("\n")
+
         # ChatGPTで切り出し案生成
         with st.spinner("AIが切り出し箇所を考え中…🤔"):
             prompt = """
