@@ -234,26 +234,28 @@ def main():
             msg2.success("動画をドラッグアンドドロップで読み込みできます！")
 
         # 動画アップロード
-        st.header("1動画ファイルをアップロード")
+        st.header("動画ファイルをアップロード")
         uploaded_file = st.file_uploader(
             "ここに動画ファイルをドラッグ＆ドロップ、またはクリックして選択",
             type=["mp4"],
             accept_multiple_files=False
         )
+        if uploaded_file is None:
+            st.warning("動画ファイルをアップロードしてください")
+            st.stop()
 
         if uploaded_file is not None:
             msg2.empty()
             msg3 = st.sidebar.empty()
             msg3.success("アップロードが完了しました！")
+            base_file_name = os.path.splitext(os.path.basename(uploaded_file.name))[0]
+            output_file_name = base_file_name + "_切り出し"
             temp_video = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4')
             temp_video.write(uploaded_file.getbuffer())
             temp_video_path = temp_video.name
             temp_video.close()
         else:
             st.info("対応フォーマット：mp4のみ")
-
-        base_file_name = os.path.splitext(os.path.basename(uploaded_file.name))[0]
-        output_file_name = base_file_name + "_切り出し"
 
         # Whisperで音声抽出＆認識
         audio_tmp = tempfile.NamedTemporaryFile(delete=False, suffix='.mp3')
