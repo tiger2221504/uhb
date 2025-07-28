@@ -1,4 +1,5 @@
 import streamlit as st
+import time
 
 USER_CREDENTIALS = st.secrets["USER_CREDENTIALS"]
 api_key = ""
@@ -28,8 +29,12 @@ def main():
                     if user_info and user_info["password"] == password:
                         st.session_state.logged_in = True
                         st.session_state.username = username
+                        st.session_state.api_key = user_info["api_key"]
                         login_area.empty() # ログインフォームを消す
-                        st.success(f"ログインに成功しました")
+                        msg = st.sidebar.empty()
+                        msg.success("ログインに成功しました")
+                        time.sleep(2)
+                        msg.empty()
                         st.rerun() # ログイン状態を反映するために再実行
                     else:
                         st.error("ユーザー名またはパスワードが間違っています")
@@ -38,9 +43,11 @@ def main():
             # ログイン後に表示
             user_info = USER_CREDENTIALS[st.session_state.username]
             st.sidebar.markdown(f"👤 **{st.session_state.username}**としてログイン中")
+            api_key = st.session_state.api_key
             if st.sidebar.button("ログアウト"):
                 st.session_state.logged_in = False
                 st.session_state.username = ""
+                st.session_state.api_key = ""
                 st.rerun()  # ログアウト後に画面を更新
 
             # ログイン後のメイン画面
