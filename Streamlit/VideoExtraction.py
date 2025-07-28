@@ -184,6 +184,7 @@ def main():
     USER_CREDENTIALS = st.secrets["USER_CREDENTIALS"]
     api_key = ""
     gpt_model = "gpt-4.1"
+    uploaded_file = None
 
     st.set_page_config(page_title="動画切り取りアプリ",page_icon="🎬", layout="wide")
     st.title("動画切り取りアプリ✂️")
