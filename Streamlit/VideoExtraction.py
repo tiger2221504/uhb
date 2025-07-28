@@ -240,56 +240,65 @@ def main():
             # ログイン後のメイン画面
             msg2.success("動画をドラッグアンドドロップで読み込みできます！")
 
-        # 動画アップロード
-        if not st.session_state.logged_in:
-            st.warning("👈まずはログインしてください")
-        if st.session_state.logged_in:
-            st.header("■動画ファイルをアップロード")
-            uploaded_file = st.file_uploader(
-                "ここに動画ファイルをドラッグ＆ドロップ、またはクリックして選択",
-                type=["mp4"],
-                accept_multiple_files=False
-            )
-            if st.session_state.logged_in and uploaded_file is None:
-                st.warning("動画ファイルをアップロードしてください")
-                st.stop()
-    
-            if uploaded_file is not None:
-                msg2.empty()
-                msg3.success("アップロードが完了しました！")
-                base_file_name = os.path.splitext(os.path.basename(uploaded_file.name))[0]
-                output_file_name = base_file_name + "_切り出し"
-                temp_video = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4')
-                temp_video.write(uploaded_file.getbuffer())
-                temp_video_path = temp_video.name
-                temp_video.close()
-            elif uploaded_file:
-                st.info("対応フォーマット：mp4のみ")
+        # --- 動画アップロード ---
+if not st.session_state.logged_in:
+    st.warning("👈まずはログインしてください")
+if st.session_state.logged_in:
+    st.header("■動画ファイルをアップロード")
+    uploaded_file = st.file_uploader(
+        "ここに動画ファイルをドラッグ＆ドロップ、またはクリックして選択",
+        type=["mp4"],
+        accept_multiple_files=False
+    )
+    if uploaded_file is None:
+        st.warning("動画ファイルをアップロードしてください")
+        st.stop()
+    else:
+        msg2.empty()
+        msg3.success("アップロードが完了しました！")
+        base_file_name = os.path.splitext(os.path.basename(uploaded_file.name))[0]
+        output_file_name = base_file_name + "_切り出し"
+        temp_video = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4')
+        temp_video.write(uploaded_file.getbuffer())
+        temp_video_path = temp_video.name
+        temp_video.close()
 
-        # Whisperで音声抽出＆認識
-        audio_tmp = tempfile.NamedTemporaryFile(delete=False, suffix='.mp3')
-        video = VideoFileClip(temp_video_path)
-        video.audio.write_audiofile(audio_tmp.name, logger=None)
-        audio_tmp.close()
-        msg3.empty()
-        with st.spinner("文字起こし中…しばらくお待ちください"):
-            client = openai.OpenAI(api_key=api_key)
-            with open(audio_tmp.name, "rb") as audio_file:
-                transcript = client.audio.transcriptions.create(
-                    model="whisper-1",
-                    file=audio_file,
-                    response_format="verbose_json",
-                    language="ja"
-                )
-            os.remove(audio_tmp.name)
-            
-            # テキスト表示
-            texts = ""
-            for i, segment in enumerate(transcript.segments):
-                texts += f"{segment.text}\n"
-            with st.expander("音声認識結果を表示（クリックで開閉）", expanded=False):
-                st.text_area("", texts, height=250)
-    
+        # ファイルが変わったらキャッシュクリア
+        if (
+            "uploaded_file_name" not in st.session_state or
+            st.session_state.uploaded_file_name != uploaded_file.name
+        ):
+            st.session_state.uploaded_file_name = uploaded_file.name
+            st.session_state.transcript = None  # キャッシュクリア
+
+        if "transcript" not in st.session_state or st.session_state.transcript is None:
+            # Whisperで音声抽出＆認識
+            audio_tmp = tempfile.NamedTemporaryFile(delete=False, suffix='.mp3')
+            video = VideoFileClip(temp_video_path)
+            video.audio.write_audiofile(audio_tmp.name, logger=None)
+            audio_tmp.close()
+            msg3.empty()
+            with st.spinner("文字起こし中…しばらくお待ちください"):
+                client = openai.OpenAI(api_key=api_key)
+                with open(audio_tmp.name, "rb") as audio_file:
+                    transcript = client.audio.transcriptions.create(
+                        model="whisper-1",
+                        file=audio_file,
+                        response_format="verbose_json",
+                        language="ja"
+                    )
+                os.remove(audio_tmp.name)
+                st.session_state.transcript = transcript
+        else:
+            transcript = st.session_state.transcript
+
+        # テキスト表示
+        texts = ""
+        for i, segment in enumerate(transcript.segments):
+            texts += f"{segment.text}\n"
+        with st.expander("音声認識結果を表示（クリックで開閉）", expanded=False):
+            st.text_area("", texts, height=250)
+        
         # 各セグメントをテキストにまとめる
         segment_texts = ""
         for i, segment in enumerate(transcript.segments):
@@ -300,7 +309,7 @@ def main():
             segment_texts += (f"[Segment {i}] {start:.2f}s - {end:.2f}s\n")
             segment_texts += (f"Text: {text}\n")
             segment_texts += ("\n")
-
+        
         # ChatGPTで切り出し案生成
         with st.spinner("AIが切り出し箇所を考え中…🤔"):
             prompt = """
