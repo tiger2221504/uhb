@@ -264,6 +264,7 @@ def main():
         audio_tmp.close()
         msg3.empty()
         with st.spinner("文字起こし中…しばらくお待ちください"):
+            client = openai.OpenAI(api_key=api_key)
             with open(audio_tmp.name, "rb") as audio_file:
                 transcript = client.audio.transcriptions.create(
                     model="whisper-1",
