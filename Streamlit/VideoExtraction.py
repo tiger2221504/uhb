@@ -225,8 +225,6 @@ def main():
     try:
         msg = st.sidebar.empty()
         msg2 = st.empty()
-        msg3 = st.empty()
-        msg4 = st.empty()
         
         if not st.session_state.logged_in:
             login_area = st.sidebar.empty()
@@ -281,7 +279,7 @@ def main():
             else:
                 # アップロード時刻でキャッシュ管理
                 prev_upload_time = st.session_state.get("upload_time")
-            
+            msg3 = st.empty()
                 # 新しい動画がアップロードされた場合だけキャッシュリセット
                 now_upload_time = str(int(time.time()))  # 秒単位のタイムスタンプ（文字列化）
                 if not prev_upload_time or st.session_state.get("uploaded_file_obj") != uploaded_file:
@@ -439,6 +437,7 @@ def main():
     
             # 候補が決まったら
             st.session_state["video_configs"] = video_configs
+            msg4 = st.empty()
             if "video_configs" in st.session_state:
                 video_configs = st.session_state["video_configs"]
                 num_videos = len(video_configs)
