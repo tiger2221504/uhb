@@ -248,7 +248,7 @@ def main():
                 type=["mp4"],
                 accept_multiple_files=False
             )
-        if st.session_state.logged_in　and uploaded_file is None:
+        if st.session_state.logged_in and uploaded_file is None:
             st.warning("動画ファイルをアップロードしてください")
             st.stop()
 
