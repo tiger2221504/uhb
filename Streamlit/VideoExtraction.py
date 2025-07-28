@@ -248,6 +248,8 @@ def main():
                         time.sleep(2)
                         msg.empty()
                         st.rerun() # ログイン状態を反映するために再実行
+                    elif (not user_info) or (not user_info["password"]):
+                        st.error("ユーザー名・パスワードどちらも入力してください")
                     else:
                         st.error("ユーザー名またはパスワードが間違っています")
         else:
@@ -292,7 +294,8 @@ def main():
                 msg3.success("アップロードが完了しました！")
                 video_configs = None
                 base_file_name = os.path.splitext(os.path.basename(uploaded_file.name))[0]
-                output_file_name = f"output_{st.session_state['upload_time']}_"
+                base_file_name_short = base_file_name[:50]
+                output_file_name = f"{base_file_name_short}_{st.session_state['upload_time']}_"
                 temp_video = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4')
                 temp_video.write(uploaded_file.getbuffer())
                 temp_video_path = temp_video.name
