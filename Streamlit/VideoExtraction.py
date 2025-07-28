@@ -155,7 +155,7 @@ def process_multiple_videos(video_configs, video_path, output_file_name):
             st.video(video_bytes)
             st.download_button(
                 label=f"動画{i+1}をダウンロード",
-                data=f,
+                data=video_bytes,
                 file_name=output_file,
                 mime="video/mp4"
             )
