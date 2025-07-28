@@ -213,6 +213,7 @@ def main():
                         st.session_state.logged_in = True
                         st.session_state.username = username
                         st.session_state.api_key = user_info["api_key"]
+                        api_key = st.session_state.api_key
                         login_area.empty() # ログインフォームを消す
                         msg.success("ログインに成功しました")
                         time.sleep(2)
@@ -220,7 +221,6 @@ def main():
                         st.rerun() # ログイン状態を反映するために再実行
                     else:
                         st.error("ユーザー名またはパスワードが間違っています")
-
         else:
             # ログイン後に表示
             user_info = USER_CREDENTIALS[st.session_state.username]
@@ -236,7 +236,7 @@ def main():
             msg2.success("動画をドラッグアンドドロップで読み込みできます！")
 
         # 動画アップロード
-        st.header("動画ファイルをアップロード")
+        st.header("■動画ファイルをアップロード")
         uploaded_file = st.file_uploader(
             "ここに動画ファイルをドラッグ＆ドロップ、またはクリックして選択",
             type=["mp4"],
