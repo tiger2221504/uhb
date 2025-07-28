@@ -429,6 +429,8 @@ def main():
         err_msg = str(e)
         if "incorrect api key" in err_msg.lower() or "invalid_api_key" in err_msg.lower():
             st.error("設定されたAPIキーが正しくありません。ログインしなおしてください。")
+        elif "insufficient_quota" in err_msg.lower():
+            st.error("OpenAIの利用上限（クォータ）を超えました。Usage/Billing画面で残高をご確認ください。")
         else:
             st.error(f"予期しないエラーが発生しました: {e}")
 
