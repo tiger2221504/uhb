@@ -8,6 +8,5 @@ requests
 isodate
 yt_dlp
 Pillow
-ffmpeg
 openai
 
