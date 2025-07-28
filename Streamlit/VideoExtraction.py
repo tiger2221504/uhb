@@ -382,6 +382,7 @@ def main():
 【音声認識結果】
 """ + segment_texts
 
+            client = openai.OpenAI(api_key=api_key)
             response = client.chat.completions.create(
                 model=gpt_model,
                 messages=[
