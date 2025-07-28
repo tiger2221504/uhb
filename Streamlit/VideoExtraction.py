@@ -412,21 +412,21 @@ def main():
 """ + segment_texts
 
             client = openai.OpenAI(api_key=api_key)
-                if st.session_state.get("video_configs") is None:
-                    response = client.chat.completions.create(
-                        model=gpt_model,
-                        messages=[
-                            {"role": "system", "content": "あなたはテレビ局でニュース動画をネット配信するプロのディレクターです。"},
-                            {"role": "user", "content": prompt}
-                        ],
-                        temperature=0.7
-                    )
-                    gpt_output = response.choices[0].message.content
-        
-                    video_configs = extract_json(gpt_output)
-                    st.session_state["video_configs"] = video_configs
-                else:
-                    video_configs = st.session_state["video_configs"]
+            if st.session_state.get("video_configs") is None:
+                response = client.chat.completions.create(
+                    model=gpt_model,
+                    messages=[
+                        {"role": "system", "content": "あなたはテレビ局でニュース動画をネット配信するプロのディレクターです。"},
+                        {"role": "user", "content": prompt}
+                    ],
+                    temperature=0.7
+                )
+                gpt_output = response.choices[0].message.content
+    
+                video_configs = extract_json(gpt_output)
+                st.session_state["video_configs"] = video_configs
+            else:
+                video_configs = st.session_state["video_configs"]
             
             if not video_configs:
                 st.error("JSON構造が見つかりませんでした。もう一度やり直してください。")
