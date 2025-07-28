@@ -149,15 +149,19 @@ def process_multiple_videos(video_configs, video_path, output_file_name):
         if output_file and os.path.exists(output_file):
             st.success(f"動画{i+1}生成完了: {output_file}")
             with open(output_file, "rb") as f:
-                st.download_button(
-                    label=f"{output_file}をダウンロード",
-                    data=f,
-                    file_name=output_file,
-                    mime="video/mp4"
-                )
+                video_bytes = f.read()
+
+            st.video(video_bytes)
+            st.download_button(
+                label=f"動画{i+1}をダウンロード",
+                data=f,
+                file_name=output_file,
+                mime="video/mp4"
+            )
+            
             output_files.append(output_file)
         else:
-            st.error(f"動画{i+1}生成に失敗")
+            st.error(f"動画{i+1}の生成に失敗")
     return output_files
 
 # GPT出力からJSON抽出
@@ -222,6 +226,7 @@ def main():
         msg = st.sidebar.empty()
         msg2 = st.empty()
         msg3 = st.empty()
+        msg4 = st.empty()
         
         if not st.session_state.logged_in:
             login_area = st.sidebar.empty()
@@ -437,17 +442,17 @@ def main():
             if "video_configs" in st.session_state:
                 video_configs = st.session_state["video_configs"]
                 num_videos = len(video_configs)
-                st.success(f"{num_videos}本の候補が生成されました。動画に切り出します。")
+                msg4.success(f"{num_videos}本の候補が生成されました。動画を切り出します。")
 
                 # 案の内容を確認
                 for i, config in enumerate(video_configs):
                     with st.expander(f"候補 {i+1}: {config['headline'][0]} ／ {config['headline'][1]}", expanded=False):
                         c1, c2 = st.columns([1, 1])
                         with c1:
-                            st.markdown(f"**見出し案①**")
+                            st.markdown(f"**見出し①案**")
                             st.info(config['headline'][0])
                         with c2:
-                            st.markdown(f"**見出し案②**")
+                            st.markdown(f"**見出し②案**")
                             st.info(config['headline'][1])
                         st.markdown("**切り出し区間（秒）**")
                         for seg in config['segments']:
@@ -455,12 +460,12 @@ def main():
                                 f"- ⏱️ **{seg['start']:.1f}** ～ **{seg['end']:.1f}**"
                             )
         
-                if st.button("動画を切り出して生成"):
-                    with st.spinner("動画を切り出し中…"):
-                        # ↓ ffmpegで切り出し＆結合部分をColabコードに準拠して実装
-                        # 必要な関数（get_video_duration, concat_clips_ffmpeg, has_audio_stream, merge_overlapping_segments, process_segment, process_multiple_videos）を流用可
-                        # ...
-                        st.success("動画が完成しました！（ダウンロードは後ほど追加）")
+                with st.spinner("動画を切り出し中…"):
+                    process_multiple_videos(
+                        video_configs, temp_video_path, output_file_name
+                    )
+                    msg4.empty()
+                st.success("動画が完成しました！")
 
     except Exception as e:
         err_msg = str(e)
