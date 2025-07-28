@@ -239,13 +239,16 @@ def main():
             msg2.success("動画をドラッグアンドドロップで読み込みできます！")
 
         # 動画アップロード
-        st.header("■動画ファイルをアップロード")
-        uploaded_file = st.file_uploader(
-            "ここに動画ファイルをドラッグ＆ドロップ、またはクリックして選択",
-            type=["mp4"],
-            accept_multiple_files=False
-        )
-        if uploaded_file is None:
+        if not st.session_state.logged_in:
+            st.warning("まずはログインしてください")
+        if st.session_state.logged_in:
+            st.header("■動画ファイルをアップロード")
+            uploaded_file = st.file_uploader(
+                "ここに動画ファイルをドラッグ＆ドロップ、またはクリックして選択",
+                type=["mp4"],
+                accept_multiple_files=False
+            )
+        if st.session_state.logged_in　and uploaded_file is None:
             st.warning("動画ファイルをアップロードしてください")
             st.stop()
 
@@ -431,6 +434,8 @@ def main():
             st.error("設定されたAPIキーが正しくありません。ログインしなおしてください。")
         elif "insufficient_quota" in err_msg.lower():
             st.error("OpenAIの利用上限（クォータ）を超えました。Usage/Billing画面で残高をご確認ください。")
+        elif "'invalid_request_error', 'param': None" in err_msg.lower():
+            st.error("ページ更新後、ログインしなおしてください")
         else:
             st.error(f"予期しないエラーが発生しました: {e}")
 
