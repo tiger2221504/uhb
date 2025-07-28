@@ -5,7 +5,7 @@ import subprocess
 import json
 import re
 import openai
-import moviepy.editor
+from moviepy.editor import VideoFileClip
 import time
 
 USER_CREDENTIALS = st.secrets["USER_CREDENTIALS"]
