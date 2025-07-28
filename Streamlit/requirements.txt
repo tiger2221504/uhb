@@ -1,8 +1,7 @@
 gspread==5.12.0
 streamlit
-moviepy
+moviepy==1.0.3
 imageio[ffmpeg]
-imageio-ffmpeg
 gdown
 pytube
 requests
