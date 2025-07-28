@@ -9,13 +9,6 @@ from moviepy.editor import VideoFileClip
 import time
 # os.system("apt-get update && apt-get install -y ffmpeg")
 
-import shutil
-def check_ffmpeg_tools():
-    for tool in ['ffmpeg', 'ffprobe']:
-        if shutil.which(tool) is None:
-            st.error(f"{tool} がインストールされていません。packages.txtの内容やデプロイ状況を確認してください。")
-            st.stop()
-
 # ==関数==
 # 動画の長さ取得
 def get_video_duration(video_path):
@@ -212,7 +205,6 @@ def extract_json(gpt_output):
 
 # ここからメイン
 def main():
-    check_ffmpeg_tools()
     USER_CREDENTIALS = st.secrets["USER_CREDENTIALS"]
     api_key = ""
     gpt_model = "gpt-4.1"
