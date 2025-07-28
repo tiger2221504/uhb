@@ -15,7 +15,8 @@ def main():
             
             # 認証処理
             if login_button:
-                if USER_CREDENTIALS.get(username) == password:
+                user_info = USER_CREDENTIALS.get(username)
+                if user_info and user_info["password"] == password:
                     st.success(f"ログインに成功しました")
                 else:
                     st.error("ユーザー名またはパスワードが間違っています")
