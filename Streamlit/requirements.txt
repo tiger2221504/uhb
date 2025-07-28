@@ -9,4 +9,4 @@ isodate
 yt_dlp
 Pillow
 openai
-
+ffmpeg
