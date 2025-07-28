@@ -186,6 +186,7 @@ def main():
     gpt_model = "gpt-4.1"
     uploaded_file = None
     temp_video_path = None
+    video_configs = None
 
     st.set_page_config(page_title="動画切り取りアプリ",page_icon="🎬", layout="wide")
     st.title("動画切り取りアプリ✂️")
@@ -256,6 +257,7 @@ def main():
             else:
                 msg2.empty()
                 msg3.success("アップロードが完了しました！")
+                video_configs = None
                 base_file_name = os.path.splitext(os.path.basename(uploaded_file.name))[0]
                 output_file_name = base_file_name + "_切り出し"
                 temp_video = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4')
