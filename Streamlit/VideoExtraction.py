@@ -411,7 +411,11 @@ def main():
                     st.success("動画が完成しました！（ダウンロードは後ほど追加可）")
 
     except Exception as e:
-        st.error(f"予期せぬエラーが発生しました: {str(e)}")
+        err_msg = str(e)
+        if "incorrect api key" in err_msg.lower() or "invalid_api_key" in err_msg.lower():
+            st.error("設定されたAPIキーが正しくありません。ログインしなおしてください。")
+        else:
+            st.error(f"予期しないエラーが発生しました: {e}")
 
 if __name__ == '__main__':
     main()
