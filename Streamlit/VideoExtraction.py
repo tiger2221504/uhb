@@ -230,7 +230,7 @@ def main():
                 st.rerun()  # ログアウト後に画面を更新
 
             # ログイン後のメイン画面
-            msg2 = st.sidebar.empty()
+            msg2 = st.empty()
             msg2.success("動画をドラッグアンドドロップで読み込みできます！")
 
         # 動画アップロード
@@ -246,7 +246,7 @@ def main():
 
         if uploaded_file is not None:
             msg2.empty()
-            msg3 = st.sidebar.empty()
+            msg3 = st.empty()
             msg3.success("アップロードが完了しました！")
             base_file_name = os.path.splitext(os.path.basename(uploaded_file.name))[0]
             output_file_name = base_file_name + "_切り出し"
