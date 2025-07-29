@@ -341,9 +341,6 @@ def main():
         }
     }
 
-    # デバッグ用（後で消す）
-    st.write(credentials)
-
     cookie_name = st.secrets["COOKIE_NAME"]
     cookie_signature_key = st.secrets["COOKIE_SIGNATURE_KEY"]
     
@@ -356,12 +353,15 @@ def main():
     )
     
     name, authentication_status, username = authenticator.login('sidebar')
+
+    st.session_state['logged_in'] = None # ★後で消す
     
     if authentication_status is None:
         st.warning("👈まずはログインしてください")
         st.stop()
-    elif authentication_status is False:
+    elif not authentication_status:
         st.error("ユーザー名またはパスワードが間違っています")
+        st.write(f"username:{username}")
         st.stop()
     elif authentication_status:
         # ログイン状態を明示的に保持したい場合
