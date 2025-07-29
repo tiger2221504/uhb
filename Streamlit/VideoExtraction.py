@@ -341,6 +341,9 @@ def main():
         }
     }
 
+    # デバッグ用（後で消す）
+    st.write(credentials)
+
     cookie_name = st.secrets["COOKIE_NAME"]
     cookie_signature_key = st.secrets["COOKIE_SIGNATURE_KEY"]
     
