@@ -363,21 +363,24 @@ def main():
     elif authentication_status:
         st.session_state['logged_in'] = True
         st.session_state['username'] = username
-        st.session_state['api_key'] = credentials["usernames"][username]["api_key"]
+        st.session_state['api_key'] = ""
+        if username and username in credentials["usernames"]:
+            st.session_state['api_key'] = credentials["usernames"][username]["api_key"]
 
     # ==ここからアプリ表示==
     try:
         st.title("動画切り取りアプリ✂️")
-        # ログイン後に表示
-        st.sidebar.markdown(f"👤 **{st.session_state.username}**としてログイン中")
-        notification(f"「{st.session_state.username}」としてログイン中")
-        api_key = st.session_state.api_key
+        
+        if st.session_state.get("logged_in"):
+            st.sidebar.markdown(f"👤 **{st.session_state.username}**としてログイン中")
+            api_key = st.session_state.api_key
+
+        # ==ログアウト処理==
         if st.sidebar.button("ログアウト"):
             authenticator.logout('sidebar')
-            st.session_state['logged_in'] = False
-            st.session_state['username'] = ""
-            st.session_state['api_key'] = ""
-            st.session_state['generation_done'] = False
+            for key in ["logged_in", "username", "api_key", "generation_done"]:
+                if key in st.session_state:
+                    del st.session_state[key]
             st.rerun()
 
         # 動画アップロード
