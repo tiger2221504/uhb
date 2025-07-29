@@ -307,9 +307,9 @@ def extract_json(gpt_output):
 # ＝＝＝ここからメイン＝＝＝
 def main():
     USER_CREDENTIALS = st.secrets["USER_CREDENTIALS"]
-    usernames = list(USER_CREDENTIALS.keys())
-    names = [u for u in usernames]  # 名前表示
-    passwords = [USER_CREDENTIALS[u]['password'] for u in usernames]
+    usernames = [u for u in USER_CREDENTIALS if 'password' in USER_CREDENTIALS[u] and USER_CREDENTIALS[u]['password']]
+    names = usernames
+    passwords = [str(USER_CREDENTIALS[u]['password']) for u in usernames]
     
     # パスワードをハッシュ化
     hashed_passwords = stauth.Hasher(passwords).generate()
