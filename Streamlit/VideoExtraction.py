@@ -179,13 +179,14 @@ def process_multiple_videos(video_configs, video_path, output_file_name):
             # 見出し1
             with c1:
                 h1 = config['headline'][0]
-                st.write(f"動画{i+1} 見出し1行目:{h1}")
+                st.write(f"見出し1行目:")
+                st.write(h1)
                 st.components.v1.html(
                     f"""
                     <div style="display: flex; align-items: center;">
                         <textarea id="text-areaA-{i}" style="width:0;height:0;opacity:0;position:absolute;">{h1}</textarea>
                         <button onclick="copyTextA_{i}()" style="height:28px;font-size:0.9em;">コピー</button>
-                        <span id="copy-messageA-{i}" style="color:green; display:none; font-size:0.9em; margin-left:6px;">☑コピー</span>
+                        <span id="copy-messageA-{i}" style="color:green; display:none; font-size:0.9em; margin-left:6px;">☑コピーしました</span>
                     </div>
                     <script>
                     function copyTextA_{i}() {{
@@ -205,13 +206,14 @@ def process_multiple_videos(video_configs, video_path, output_file_name):
             # 見出し2
             with c2:
                 h2 = config['headline'][1]
-                st.write(f"動画{i+1} 見出し2行目:{h2}")
+                st.write(f"見出し2行目:")
+                st.write(h2)
                 st.components.v1.html(
                     f"""
                     <div style="display: flex; align-items: center;">
                         <textarea id="text-areaB-{i}" style="width:0;height:0;opacity:0;position:absolute;">{h2}</textarea>
                         <button onclick="copyTextB_{i}()" style="height:28px;font-size:0.9em;">コピー</button>
-                        <span id="copy-messageB-{i}" style="color:green; display:none; font-size:0.9em; margin-left:6px;">☑コピー</span>
+                        <span id="copy-messageB-{i}" style="color:green; display:none; font-size:0.9em; margin-left:6px;">☑コピーしました</span>
                     </div>
                     <script>
                     function copyTextB_{i}() {{
@@ -288,6 +290,10 @@ def main():
     uploaded_file = None
     temp_video_path = None
     video_configs = None
+    
+    # 動画生成フラグ初期化
+    if "generation_done" not in st.session_state:
+        st.session_state["generation_done"] = False
 
     st.set_page_config(page_title="動画切り取りアプリ",page_icon="🎬", layout="wide")
     st.title("動画切り取りアプリ✂️")
@@ -340,6 +346,7 @@ def main():
                 st.session_state.logged_in = False
                 st.session_state.username = ""
                 st.session_state.api_key = ""
+                st.session_state.generation_done = False
                 st.rerun()  # ログアウト後に画面を更新
 
         # 動画アップロード
@@ -367,6 +374,7 @@ def main():
                     st.session_state["uploaded_file_obj"] = uploaded_file
                     st.session_state["video_configs"] = None
                     st.session_state["transcript"] = None
+                    st.session_state.generation_done = False
                 msg2.empty()
                 msg3.success("アップロードが完了しました！")
                 video_configs = None
@@ -386,6 +394,7 @@ def main():
                     msg3.empty()
                     st.session_state.uploaded_file_name = uploaded_file.name
                     st.session_state.transcript = None  # キャッシュクリア
+                    st.session_state.generation_done = False  # キャッシュクリア
     
             if "transcript" not in st.session_state or st.session_state.transcript is None:
                 # Whisperで音声抽出＆認識
@@ -525,7 +534,6 @@ def main():
         if "video_configs" in st.session_state:
             video_configs = st.session_state["video_configs"]
             num_videos = len(video_configs)
-            msg4.success(f"{num_videos}本の候補が生成されました。動画を切り出します。")
 
             # 案の内容を確認
             for i, config in enumerate(video_configs):
@@ -535,14 +543,18 @@ def main():
                         st.markdown(
                             f"- ⏱️ **{seg['start']:.1f}** ～ **{seg['end']:.1f}**"
                         )
+                        
+            msg4.success(f"{num_videos}本の候補が生成されました。動画を切り出します。")
     
-            with st.spinner("動画を切り出し中…"):
-                process_multiple_videos(
-                    video_configs, temp_video_path, output_file_name
-                )
-                msg4.empty()
-            st.success("動画が完成しました！")
-            st.rerun()
+            if not st.session_state.generation_done:
+                with st.spinner("動画を切り出し中…"):
+                    process_multiple_videos(
+                        video_configs, temp_video_path, output_file_name
+                    )
+                    msg4.empty()
+                st.success("動画が完成しました！")
+                st.session_state.generation_done = True
+                st.rerun()
 
     except Exception as e:
         err_msg = str(e)
