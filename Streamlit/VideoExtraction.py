@@ -317,10 +317,13 @@ def main():
     # 認証オブジェクト生成
     authenticator = stauth.Authenticate(
         names, usernames, passwords,
-        cookie_name, cookie_signature_key, cookie_expiry_days=7
+        cookie_name=cookie_name, 
+        key=cookie_signature_key, 
+        cookie_expiry_days=7
     )
     
     name, authentication_status, username = authenticator.login('ログイン', 'main')
+    
     if authentication_status:
         st.session_state['logged_in'] = True
         st.session_state['username'] = username
