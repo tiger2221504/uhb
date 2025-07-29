@@ -163,42 +163,43 @@ def process_segment(segments, video_path, file_name):
 def process_multiple_videos(video_configs, video_path, output_file_name):
     output_files = []
     for i, config in enumerate(video_configs):
-        result = st.session_state["video_results"][i]
-        st.markdown(f"### 動画{i+1}")
-        # 既に正常完了している場合はそのまま表示
-        if result and result.get("status") == "ok":
-            show_video_result(i, result)
-            continue
-        # 失敗 or 初回 の場合
-        run_flag = False
-        if result is None or result.get("status") == "error":
-            # 「再実行」ボタン
-            if result and result.get("status") == "error":
-                if st.button(f"動画{i+1}再実行", key=f"retry_{i}"):
+        with st.spinner(f"動画{i+1}処理中…"):
+            result = st.session_state["video_results"][i]
+            st.markdown(f"### 動画{i+1}")
+            # 既に正常完了している場合はそのまま表示
+            if result and result.get("status") == "ok":
+                show_video_result(i, result)
+                continue
+            # 失敗 or 初回 の場合
+            run_flag = False
+            if result is None or result.get("status") == "error":
+                # 「再実行」ボタン
+                if result and result.get("status") == "error":
+                    if st.button(f"動画{i+1}再実行", key=f"retry_{i}"):
+                        run_flag = True
+                else:
                     run_flag = True
-            else:
-                run_flag = True
-
-        if run_flag:
-            output_file = process_segment(config["segments"], video_path, f"{output_file_name}{i+1}")
-            if output_file and os.path.exists(output_file):
-                with open(output_file, "rb") as f:
-                    video_bytes = f.read()
-                st.session_state["video_results"][i] = {
-                    "status": "ok",
-                    "video_bytes": video_bytes,
-                    "filename": output_file,
-                    "headline": config["headline"]
-                }
-                show_video_result(i, st.session_state["video_results"][i])
-            else:
-                st.session_state["video_results"][i] = {
-                    "status": "error",
-                    "headline": config["headline"]
-                }
-                st.error(f"動画{i+1}の生成に失敗")
-                # 再実行ボタン
-                st.button(f"動画{i+1}再実行", key=f"retry_{i}_aftererror")
+    
+            if run_flag:
+                output_file = process_segment(config["segments"], video_path, f"{output_file_name}{i+1}")
+                if output_file and os.path.exists(output_file):
+                    with open(output_file, "rb") as f:
+                        video_bytes = f.read()
+                    st.session_state["video_results"][i] = {
+                        "status": "ok",
+                        "video_bytes": video_bytes,
+                        "filename": output_file,
+                        "headline": config["headline"]
+                    }
+                    show_video_result(i, st.session_state["video_results"][i])
+                else:
+                    st.session_state["video_results"][i] = {
+                        "status": "error",
+                        "headline": config["headline"]
+                    }
+                    st.error(f"動画{i+1}の生成に失敗")
+                    # 再実行ボタン
+                    st.button(f"動画{i+1}再実行", key=f"retry_{i}_aftererror")
     # 全部完了したら通知
     if all(x and x.get("status") == "ok" for x in st.session_state["video_results"]):
         notification("全ての動画生成が完了しました！")
@@ -548,7 +549,6 @@ def main():
     
             # 候補が決まったら
             st.session_state["video_configs"] = video_configs
-            msg4 = st.empty()
         if "video_configs" in st.session_state:
             video_configs = st.session_state["video_configs"]
             num_videos = len(video_configs)
@@ -562,7 +562,16 @@ def main():
                             f"- ⏱️ **{seg['start']:.1f}** ～ **{seg['end']:.1f}**"
                         )
                         
+            msg4 = st.empty()            
             msg4.success(f"{num_videos}本の候補が生成されました。動画を切り出します。")
+
+            # 動画生成済み結果を最初に全て表示
+            if "video_results" in st.session_state:
+                process_multiple_videos(
+                    video_configs, temp_video_path, output_file_name
+                )
+                if all(x and x.get("status") == "ok" for x in st.session_state["video_results"]):
+                    msg4.empty()
     
             if not st.session_state.generation_done:
                 # 各動画でそれぞれセッション管理
