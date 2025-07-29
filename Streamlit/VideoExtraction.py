@@ -163,6 +163,7 @@ def process_segment(segments, video_path, file_name):
 def process_multiple_videos(video_configs, video_path, output_file_name):
     output_files = []
     for i, config in enumerate(video_configs):
+        st.markdown(f"## 動画{i+1}")
         file_name = f"{output_file_name}{i+1}"
         msg = st.empty()
         msg.info(f"動画{i+1}を生成中…")
@@ -178,7 +179,7 @@ def process_multiple_videos(video_configs, video_path, output_file_name):
             # 見出し1
             with c1:
                 h1 = config['headline'][0]
-                st.text_area(f"動画{i+1} 見出し1行目", value=h1, height=28, key=f"outputA_{i}")
+                st.text_area(f"動画{i+1} 見出し1行目", value=h1, height=25, max_chars=30, key=f"outputA_{i}")
                 st.components.v1.html(
                     f"""
                     <div style="display: flex; align-items: center;">
@@ -204,7 +205,7 @@ def process_multiple_videos(video_configs, video_path, output_file_name):
             # 見出し2
             with c2:
                 h2 = config['headline'][1]
-                st.text_area(f"動画{i+1} 見出し2行目", value=h2, height=28, key=f"outputB_{i}")
+                st.text_area(f"動画{i+1} 見出し2行目", value=h2, height=25, max_chars=30, key=f"outputB_{i}")
                 st.components.v1.html(
                     f"""
                     <div style="display: flex; align-items: center;">
@@ -341,14 +342,12 @@ def main():
                 st.session_state.api_key = ""
                 st.rerun()  # ログアウト後に画面を更新
 
-            # ログイン後のメイン画面
-            msg2.success("動画をドラッグアンドドロップで読み込みできます！")
-
         # --- 動画アップロード ---
         if not st.session_state.logged_in:
             st.warning("👈まずはログインしてください")
         if st.session_state.logged_in:
             st.header("■動画ファイルをアップロード")
+            msg2.success("動画をドラッグアンドドロップで読み込みできます！")
             uploaded_file = st.file_uploader(
                 "ここに動画ファイルをドラッグ＆ドロップ、またはクリックして選択",
                 type=["mp4"],
@@ -541,6 +540,7 @@ def main():
                     )
                     msg4.empty()
                 st.success("動画が完成しました！")
+                st.rerun()
 
     except Exception as e:
         err_msg = str(e)
