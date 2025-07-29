@@ -360,9 +360,8 @@ def main():
         else:
             # ログイン後に表示
             user_info = USER_CREDENTIALS[st.session_state.username]
-            loginmessage = f"👤 **{st.session_state.username}**としてログイン中"
-            st.sidebar.markdown(loginmessage)
-            notification(loginmessage)
+            st.sidebar.markdown(f"👤 **{st.session_state.username}**としてログイン中")
+            notification(f"「{st.session_state.username}」としてログイン中")
             api_key = st.session_state.api_key
             if st.sidebar.button("ログアウト"):
                 st.session_state.logged_in = False
