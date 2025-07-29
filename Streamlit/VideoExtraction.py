@@ -12,22 +12,21 @@ import time
 # ==関数==
 # 通知を出す
 def notification(text):
-    md = f"""
+    st.components.v1.html(f"""
     <script>
     if ("Notification" in window) {{
       if (Notification.permission === "granted") {{
-        new Notification('{text}');
+        new Notification("{text}");
       }} else if (Notification.permission !== "denied") {{
         Notification.requestPermission().then(function (permission) {{
           if (permission === "granted") {{
-            new Notification('{text}');
+            new Notification("{text}");
           }}
         }});
       }}
     }}
     </script>
-    """
-    st.markdown(md, unsafe_allow_html=True)
+    """, height=0)
     
 # 動画の長さ取得
 def get_video_duration(video_path):
@@ -202,7 +201,11 @@ def process_multiple_videos(video_configs, video_path, output_file_name):
                     st.button(f"動画{i+1}再実行", key=f"retry_{i}_aftererror")
     # 全部完了したら通知
     if all(x and x.get("status") == "ok" for x in st.session_state["video_results"]):
-        notification("全ての動画生成が完了しました！")
+        if not st.session_state.get("notified"):
+            notification("全ての動画生成が完了しました！")
+            st.session_state["notified"] = True
+    else:
+        st.session_state["notified"] = False
 
 def show_video_result(i, result):
     st.video(result["video_bytes"])
