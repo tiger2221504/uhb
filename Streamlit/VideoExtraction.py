@@ -131,7 +131,7 @@ def process_segment(segments, video_path, file_name):
             "-c:a", "aac", "-b:a", "192k", output
         ]
         result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-        st.write(result.stdout)
+        # st.write(result.stdout)
     clip_files = [f"clip_{i}.mp4" for i in range(len(segments))]
     output_path = f"{file_name}.mp4"
     concat_clips_ffmpeg(clip_files, output_path)
