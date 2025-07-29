@@ -306,6 +306,17 @@ def extract_json(gpt_output):
 
 # ＝＝＝ここからメイン＝＝＝
 def main():
+    # 変数の初期化
+    api_key = ""
+    gpt_model = "gpt-4.1"
+    uploaded_file = None
+    temp_video_path = None
+    video_configs = None
+    
+    # 動画生成フラグ初期化
+    if "generation_done" not in st.session_state:
+        st.session_state["generation_done"] = False
+        
     USER_CREDENTIALS = st.secrets["USER_CREDENTIALS"]
     credentials = {
         "usernames": {
@@ -333,22 +344,13 @@ def main():
     
     if authentication_status:
         st.session_state['logged_in'] = True
-        st.session_state['username'] = username
-        st.session_state['api_key'] = USER_CREDENTIALS[username]['api_key']
-    elif authentication_status is False:
+        st.session_state['username'] = name
+        st.session_state['api_key'] = USER_CREDENTIALS[name]['api_key']
+    elif not authentication_status:
         st.session_state['logged_in'] = False
     else:
         st.session_state['logged_in'] = False
-
-    api_key = ""
-    gpt_model = "gpt-4.1"
-    uploaded_file = None
-    temp_video_path = None
-    video_configs = None
-    
-    # 動画生成フラグ初期化
-    if "generation_done" not in st.session_state:
-        st.session_state["generation_done"] = False
+        
 
     st.set_page_config(page_title="動画切り取りアプリ",page_icon="🎬", layout="wide")
     st.title("動画切り取りアプリ✂️")
