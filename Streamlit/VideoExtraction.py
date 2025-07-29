@@ -174,27 +174,55 @@ def process_multiple_videos(video_configs, video_path, output_file_name):
 
             st.video(video_bytes)
 
-            h1, h2 = config['headline'][0], config['headline'][1]
-            cols = st.columns([6, 1, 6, 1])
-            with cols[0]:
-                st.markdown(f"**見出し1行目**\n\n{h1}")
-            with cols[1]:
-                st.button("コピー", on_click=st.experimental_set_query_params, args=(), key=f"copy_headline1_{i}")
-                st.markdown(
-                    f"""
-                    <button onclick="navigator.clipboard.writeText('{h1}')">コピー</button>
-                    """,
-                    unsafe_allow_html=True
-                )
-            with cols[2]:
-                st.markdown(f"**見出し2行目**\n\n{h2}")
-            with cols[3]:
-                st.markdown(
-                    f"""
-                    <button onclick="navigator.clipboard.writeText('{h2}')">コピー</button>
-                    """,
-                    unsafe_allow_html=True
-                )
+            h1 = config['headline'][0]
+            st.text_area(f"動画{i+1} 見出し1行目", value=h1, height=50, key=f"outputA_{i}")
+            copy_button1 = f"""
+            <button onclick="copyTextA_{i}()">クリップボードにコピー</button>
+            <p id="copy-messageA-{i}" style="color:green; display:none;">☑コピーしました</p>
+            <script>
+            function copyTextA_{i}() {{
+                var text = document.getElementById('text-areaA-{i}').value;
+                navigator.clipboard.writeText(text).then(function() {{
+                    document.getElementById('copy-messageA-{i}').style.display = 'block';
+                    setTimeout(function() {{
+                        document.getElementById('copy-messageA-{i}').style.display = 'none';
+                    }}, 2000);
+                }});
+            }}
+            </script>
+            """
+            st.components.v1.html(
+                f"""
+                <textarea id="text-areaA-{i}" style="display:none;">{h1}</textarea>
+                {copy_button1}
+                """,
+                height=50,
+            )
+    
+            h2 = config['headline'][1]
+            st.text_area(f"動画{i+1} 見出し2行目", value=h2, height=50, key=f"outputB_{i}")
+            copy_button2 = f"""
+            <button onclick="copyTextB_{i}()">クリップボードにコピー</button>
+            <p id="copy-messageB-{i}" style="color:green; display:none;">☑コピーしました</p>
+            <script>
+            function copyTextB_{i}() {{
+                var text = document.getElementById('text-areaB-{i}').value;
+                navigator.clipboard.writeText(text).then(function() {{
+                    document.getElementById('copy-messageB-{i}').style.display = 'block';
+                    setTimeout(function() {{
+                        document.getElementById('copy-messageB-{i}').style.display = 'none';
+                    }}, 2000);
+                }});
+            }}
+            </script>
+            """
+            st.components.v1.html(
+                f"""
+                <textarea id="text-areaB-{i}" style="display:none;">{h2}</textarea>
+                {copy_button2}
+                """,
+                height=50,
+            )
                 
             st.download_button(
                 label=f"動画{i+1}をダウンロード",
