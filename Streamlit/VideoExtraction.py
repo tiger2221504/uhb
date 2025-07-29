@@ -325,7 +325,7 @@ def main():
     authenticator = stauth.Authenticate(
         credentials,
         cookie_name=cookie_name, 
-        signature_key=cookie_signature_key, 
+        key=cookie_signature_key, 
         cookie_expiry_days=7
     )
     
