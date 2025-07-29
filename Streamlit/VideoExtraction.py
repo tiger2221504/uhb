@@ -324,9 +324,9 @@ def main():
     # 認証オブジェクト生成
     authenticator = stauth.Authenticate(
         credentials,
-        cookie_name=cookie_name, 
-        key=cookie_signature_key, 
-        cookie_expiry_days=7
+        cookie_name, 
+        cookie_signature_key, 
+        7 # cookie_expiry_days
     )
     
     name, authentication_status, username = authenticator.login('ログイン', location='main')
