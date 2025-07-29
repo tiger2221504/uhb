@@ -410,6 +410,8 @@ def main():
                     st.session_state["video_configs"] = None
                     st.session_state["transcript"] = None
                     st.session_state.generation_done = False
+                    if "video_results" in st.session_state:
+                        del st.session_state["video_results"]
                 msg2.empty()
                 msg3.success("アップロードが完了しました！")
                 with st.spinner("文字起こし中の準備中…"):
