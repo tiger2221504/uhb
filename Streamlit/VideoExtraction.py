@@ -163,7 +163,7 @@ def process_segment(segments, video_path, file_name):
 def process_multiple_videos(video_configs, video_path, output_file_name):
     output_files = []
     for i, config in enumerate(video_configs):
-        st.markdown(f"## 動画{i+1}")
+        st.markdown(f"### 動画{i+1}")
         file_name = f"{output_file_name}{i+1}"
         msg = st.empty()
         msg.info(f"動画{i+1}を生成中…")
@@ -179,7 +179,7 @@ def process_multiple_videos(video_configs, video_path, output_file_name):
             # 見出し1
             with c1:
                 h1 = config['headline'][0]
-                st.text_area(f"動画{i+1} 見出し1行目", value=h1, height=25, max_chars=30, key=f"outputA_{i}")
+                st.write(f"動画{i+1} 見出し1行目:{h1}")
                 st.components.v1.html(
                     f"""
                     <div style="display: flex; align-items: center;">
@@ -205,7 +205,7 @@ def process_multiple_videos(video_configs, video_path, output_file_name):
             # 見出し2
             with c2:
                 h2 = config['headline'][1]
-                st.text_area(f"動画{i+1} 見出し2行目", value=h2, height=25, max_chars=30, key=f"outputB_{i}")
+                st.write(f"動画{i+1} 見出し2行目:{h2}")
                 st.components.v1.html(
                     f"""
                     <div style="display: flex; align-items: center;">
