@@ -173,6 +173,29 @@ def process_multiple_videos(video_configs, video_path, output_file_name):
                 video_bytes = f.read()
 
             st.video(video_bytes)
+
+            h1, h2 = config['headline'][0], config['headline'][1]
+            cols = st.columns([6, 1, 6, 1])
+            with cols[0]:
+                st.markdown(f"**見出し1行目**\n\n{h1}")
+            with cols[1]:
+                st.button("コピー", on_click=st.experimental_set_query_params, args=(), key=f"copy_headline1_{i}")
+                st.markdown(
+                    f"""
+                    <button onclick="navigator.clipboard.writeText('{h1}')">コピー</button>
+                    """,
+                    unsafe_allow_html=True
+                )
+            with cols[2]:
+                st.markdown(f"**見出し2行目**\n\n{h2}")
+            with cols[3]:
+                st.markdown(
+                    f"""
+                    <button onclick="navigator.clipboard.writeText('{h2}')">コピー</button>
+                    """,
+                    unsafe_allow_html=True
+                )
+                
             st.download_button(
                 label=f"動画{i+1}をダウンロード",
                 data=video_bytes,
@@ -182,6 +205,7 @@ def process_multiple_videos(video_configs, video_path, output_file_name):
             
             output_files.append(output_file)
         else:
+            msg.empty()
             st.error(f"動画{i+1}の生成に失敗")
     notification("全ての動画生成が完了しました！")
     return output_files
