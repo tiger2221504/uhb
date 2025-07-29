@@ -320,7 +320,7 @@ def main():
     if "generation_done" not in st.session_state:
         st.session_state["generation_done"] = False
 
-    # セッションにログイン状態を保持
+    # セッション初期化
     if "logged_in" not in st.session_state:
         st.session_state.logged_in = False
     if "username" not in st.session_state:
@@ -330,16 +330,16 @@ def main():
 
     # ==ログイン関係==
     USER_CREDENTIALS = st.secrets["USER_CREDENTIALS"]
-    credentials = {
-        "usernames": {
-            uname: {
-                "name": uname,
-                "password": info["password"],
-                "api_key": info.get("api_key", "")
-            }
-            for uname, info in USER_CREDENTIALS.items()
-        }
-    }
+    # credentials = {
+    #     "usernames": {
+    #         uname: {
+    #             "name": uname,
+    #             "password": info["password"],
+    #             "api_key": info.get("api_key", "")
+    #         }
+    #         for uname, info in USER_CREDENTIALS.items()
+    #     }
+    # }
 
     # デバッグ用credentials
     credentials = {
@@ -364,6 +364,10 @@ def main():
     )
     
     name, authentication_status, username = authenticator.login('sidebar')
+    st.write(f"name:{name}") # デバッグ用（後で消す）
+    st.write(f"username:{username}") # デバッグ用（後で消す）
+    st.write(f"認証ステータス: {authentication_status}") # デバッグ用（後で消す）
+    st.write(credentials) # デバッグ用（後で消す）
     
     if authentication_status is None:
         st.warning("👈まずはログインしてください")
