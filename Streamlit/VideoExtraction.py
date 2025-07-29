@@ -316,7 +316,16 @@ def main():
     # 動画生成フラグ初期化
     if "generation_done" not in st.session_state:
         st.session_state["generation_done"] = False
-        
+
+    # セッションにログイン状態を保持
+    if "logged_in" not in st.session_state:
+        st.session_state.logged_in = False
+    if "username" not in st.session_state:
+        st.session_state.username = ""
+    if "api_key" not in st.session_state:
+        st.session_state.api_key = ""
+
+    # ==ログイン関係==
     USER_CREDENTIALS = st.secrets["USER_CREDENTIALS"]
     credentials = {
         "usernames": {
@@ -342,32 +351,22 @@ def main():
     
     name, authentication_status, username = authenticator.login('sidebar')
     
-    if authentication_status:
-        st.session_state['logged_in'] = True
-        st.session_state['username'] = name
-        st.session_state['api_key'] = USER_CREDENTIALS[name]['api_key']
-    elif not authentication_status:
-        st.session_state['logged_in'] = False
-    else:
-        st.session_state['logged_in'] = False
-        
-
-    st.set_page_config(page_title="動画切り取りアプリ",page_icon="🎬", layout="wide")
-    st.title("動画切り取りアプリ✂️")
-
-    # セッションにログイン状態を保持
-    if "logged_in" not in st.session_state:
-        st.session_state.logged_in = False
-    if "username" not in st.session_state:
-        st.session_state.username = ""
-    if "api_key" not in st.session_state:
-        st.session_state.api_key = ""
-
-    if not st.session_state.logged_in:
+    if authentication_status is None:
         st.warning("👈まずはログインしてください")
         st.stop()
-    
-    try:            
+    elif authentication_status is False:
+        st.error("ユーザー名またはパスワードが間違っています")
+        st.stop()
+    elif authentication_status:
+        # ログイン状態を明示的に保持したい場合
+        st.session_state['logged_in'] = True
+        st.session_state['username'] = username
+        st.session_state['api_key'] = credentials["usernames"][username]["api_key"]
+
+    # ==ここからアプリ表示==
+    try:
+        st.set_page_config(page_title="動画切り取りアプリ",page_icon="🎬", layout="wide")
+        st.title("動画切り取りアプリ✂️")
         # ログイン後に表示
         st.sidebar.markdown(f"👤 **{st.session_state.username}**としてログイン中")
         notification(f"「{st.session_state.username}」としてログイン中")
