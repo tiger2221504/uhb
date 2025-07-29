@@ -316,7 +316,9 @@ def main():
     
     # 認証オブジェクト生成
     authenticator = stauth.Authenticate(
-        names, usernames, passwords,
+        names=names,
+        usernames=usernames,
+        passwords=passwords,
         cookie_name=cookie_name, 
         key=cookie_signature_key, 
         cookie_expiry_days=7
