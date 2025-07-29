@@ -330,25 +330,14 @@ def main():
 
     # ==ログイン関係==
     USER_CREDENTIALS = st.secrets["USER_CREDENTIALS"]
-    # credentials = {
-    #     "usernames": {
-    #         uname: {
-    #             "name": uname,
-    #             "password": info["password"],
-    #             "api_key": info.get("api_key", "")
-    #         }
-    #         for uname, info in USER_CREDENTIALS.items()
-    #     }
-    # }
-
-    # デバッグ用credentials
     credentials = {
         "usernames": {
-            "test": {
-                "name": "test",
-                "password": "$2b$12$Y6yGI/usf5aqeT/BgoXg1.RcDztFvBH1Yx3xI6dTVLOkXAtPrvVMi",
-                "api_key": "test"
+            uname: {
+                "name": uname,
+                "password": info["password"],
+                "api_key": info.get("api_key", "")
             }
+            for uname, info in USER_CREDENTIALS.items()
         }
     }
 
@@ -364,21 +353,12 @@ def main():
     )
     
     name, authentication_status, username = authenticator.login('sidebar')
-    st.write(f"name:{name}") # デバッグ用（後で消す）
-    st.write(f"username:{username}") # デバッグ用（後で消す）
-    st.write(f"認証ステータス: {authentication_status}") # デバッグ用（後で消す）
-    st.write(credentials) # デバッグ用（後で消す）
     
     if authentication_status is None:
         st.warning("👈まずはログインしてください")
         st.stop()
     elif not authentication_status:
         st.error("ユーザー名またはパスワードが間違っています")
-        st.write(f"name:{name}") # デバッグ用（後で消す）
-        st.write(f"username:{username}") # デバッグ用（後で消す）
-        st.write(f"定義済みユーザー一覧: {list(credentials['usernames'].keys())}") # デバッグ用（後で消す）
-        if username in credentials["usernames"]: # デバッグ用（後で消す）
-            st.write(f"正解パスワード: {credentials['usernames'][username]['password']}") # デバッグ用（後で消す）
         st.stop()
     elif authentication_status:
         st.session_state['logged_in'] = True
@@ -403,6 +383,7 @@ def main():
         # 動画アップロード
         if st.session_state.logged_in:
             st.header("■動画ファイルをアップロード")
+            msg2 = st.empty()
             msg2.success("動画をドラッグアンドドロップで読み込みできます！")
             uploaded_file = st.file_uploader(
                 "ここに動画ファイルをドラッグ＆ドロップ、またはクリックして選択",
