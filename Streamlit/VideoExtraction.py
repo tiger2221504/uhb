@@ -392,7 +392,6 @@ def main():
                 video = VideoFileClip(temp_video_path)
                 video.audio.write_audiofile(audio_tmp.name, logger=None)
                 audio_tmp.close()
-                msg3.empty()
                 with st.spinner("文字起こし中…しばらくお待ちください"):
                     client = openai.OpenAI(api_key=api_key)
                     with open(audio_tmp.name, "rb") as audio_file:
@@ -404,6 +403,7 @@ def main():
                         )
                     os.remove(audio_tmp.name)
                     st.session_state.transcript = transcript
+                    msg3.empty()
             else:
                 transcript = st.session_state.transcript
     
