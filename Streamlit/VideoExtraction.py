@@ -341,6 +341,17 @@ def main():
         }
     }
 
+    # デバッグ用credentials
+    credentials = {
+        "usernames": {
+            "test": {
+                "name": "test",
+                "password": "test",
+                "api_key": "test"
+            }
+        }
+    }
+
     cookie_name = st.secrets["COOKIE_NAME"]
     cookie_signature_key = st.secrets["COOKIE_SIGNATURE_KEY"]
     
@@ -353,18 +364,19 @@ def main():
     )
     
     name, authentication_status, username = authenticator.login('sidebar')
-
-    st.session_state['logged_in'] = None # ★後で消す
     
     if authentication_status is None:
         st.warning("👈まずはログインしてください")
         st.stop()
     elif not authentication_status:
         st.error("ユーザー名またはパスワードが間違っています")
-        st.write(f"username:{username}")
+        st.write(f"name:{name}") # デバッグ用（後で消す）
+        st.write(f"username:{username}") # デバッグ用（後で消す）
+        st.write(f"定義済みユーザー一覧: {list(credentials['usernames'].keys())}") # デバッグ用（後で消す）
+        if username in credentials["usernames"]: # デバッグ用（後で消す）
+            st.write(f"正解パスワード: {credentials['usernames'][username]['password']}") # デバッグ用（後で消す）
         st.stop()
     elif authentication_status:
-        # ログイン状態を明示的に保持したい場合
         st.session_state['logged_in'] = True
         st.session_state['username'] = username
         st.session_state['api_key'] = credentials["usernames"][username]["api_key"]
