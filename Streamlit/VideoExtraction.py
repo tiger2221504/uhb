@@ -346,7 +346,7 @@ def main():
         "usernames": {
             "test": {
                 "name": "test",
-                "password": "test",
+                "password": "$2b$12$Y6yGI/usf5aqeT/BgoXg1.RcDztFvBH1Yx3xI6dTVLOkXAtPrvVMi",
                 "api_key": "test"
             }
         }
