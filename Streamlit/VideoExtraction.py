@@ -329,7 +329,7 @@ def main():
         cookie_expiry_days=7
     )
     
-    name, authentication_status, username = authenticator.login('ログイン', location='main')
+    name, authentication_status, username = authenticator.login(form_name='ログイン', location='main')
     
     if authentication_status:
         st.session_state['logged_in'] = True
