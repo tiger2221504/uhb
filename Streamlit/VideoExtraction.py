@@ -372,16 +372,20 @@ def main():
         st.title("動画切り取りアプリ✂️")
         
         if st.session_state.get("logged_in"):
-            st.sidebar.markdown(f"👤 **{st.session_state.username}**としてログイン中")
             api_key = st.session_state.api_key
+            if st.session_state.get("username"):
+                st.sidebar.markdown(f"👤 **{st.session_state.username}**としてログイン中")
 
-        # ==ログアウト処理==
-        if st.sidebar.button("ログアウト"):
+            # ==ログアウト処理==
             authenticator.logout('sidebar')
-            for key in ["logged_in", "username", "api_key", "generation_done"]:
-                if key in st.session_state:
-                    del st.session_state[key]
-            st.rerun()
+            if st.sidebar.button("ログアウト"):
+                
+                st.session_state['logged_in'] = False
+                st.session_state['username'] = ""
+                st.session_state['api_key'] = ""
+                st.session_state['generation_done'] = False
+    
+                st.rerun()
 
         # 動画アップロード
         if st.session_state.logged_in:
