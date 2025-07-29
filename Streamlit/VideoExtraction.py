@@ -10,6 +10,27 @@ import time
 # os.system("apt-get update && apt-get install -y ffmpeg")
 
 # ==関数==
+# 通知を出す
+def notification(text):
+    md = f"""
+        <script>
+        // 通知の許可をリクエスト
+        if ("Notification" in window) {
+          if (Notification.permission === "granted") {
+            new Notification("{text}");
+          } else if (Notification.permission !== "denied") {
+            Notification.requestPermission().then(function (permission) {
+              if (permission === "granted") {
+                new Notification("{text}");
+              }
+            });
+          }
+        }
+        </script>
+        """
+    st.markdown(md, unsafe_allow_html=True)
+    return
+    
 # 動画の長さ取得
 def get_video_duration(video_path):
     result = subprocess.run(
@@ -164,6 +185,7 @@ def process_multiple_videos(video_configs, video_path, output_file_name):
             output_files.append(output_file)
         else:
             st.error(f"動画{i+1}の生成に失敗")
+    notification("全ての動画生成が完了しました！")
     return output_files
 
 # GPT出力からJSON抽出
