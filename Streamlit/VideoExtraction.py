@@ -179,8 +179,7 @@ def process_multiple_videos(video_configs, video_path, output_file_name):
             # 見出し1
             with c1:
                 h1 = config['headline'][0]
-                st.write(f"見出し1行目:")
-                st.write(h1)
+                st.markdown(f"**見出し1行目:**\n {h1}")
                 st.components.v1.html(
                     f"""
                     <div style="display: flex; align-items: center;">
@@ -206,8 +205,7 @@ def process_multiple_videos(video_configs, video_path, output_file_name):
             # 見出し2
             with c2:
                 h2 = config['headline'][1]
-                st.write(f"見出し2行目:")
-                st.write(h2)
+                st.markdown(f"**見出し2行目:**\n {h2}")
                 st.components.v1.html(
                     f"""
                     <div style="display: flex; align-items: center;">
