@@ -310,16 +310,13 @@ def main():
     usernames = [u for u in USER_CREDENTIALS if 'password' in USER_CREDENTIALS[u] and USER_CREDENTIALS[u]['password']]
     names = usernames
     passwords = [str(USER_CREDENTIALS[u]['password']) for u in usernames]
-    
-    # パスワードをハッシュ化
-    hashed_passwords = stauth.Hasher(passwords).generate()
 
     cookie_name = st.secrets["COOKIE_NAME"]
     cookie_signature_key = st.secrets["COOKIE_SIGNATURE_KEY"]
     
     # 認証オブジェクト生成
     authenticator = stauth.Authenticate(
-        names, usernames, hashed_passwords,
+        names, usernames, passwords,
         cookie_name, cookie_signature_key, cookie_expiry_days=7
     )
     
