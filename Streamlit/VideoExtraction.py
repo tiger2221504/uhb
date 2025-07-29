@@ -9,6 +9,9 @@ from moviepy.editor import VideoFileClip
 import time
 import streamlit_authenticator as stauth
 
+# ページコンフィグ
+st.set_page_config(page_title="動画切り取りアプリ",page_icon="🎬", layout="wide")
+
 # ==関数==
 # 通知を出す
 def notification(text):
@@ -365,14 +368,13 @@ def main():
 
     # ==ここからアプリ表示==
     try:
-        st.set_page_config(page_title="動画切り取りアプリ",page_icon="🎬", layout="wide")
         st.title("動画切り取りアプリ✂️")
         # ログイン後に表示
         st.sidebar.markdown(f"👤 **{st.session_state.username}**としてログイン中")
         notification(f"「{st.session_state.username}」としてログイン中")
         api_key = st.session_state.api_key
         if st.sidebar.button("ログアウト"):
-            authenticator.logout('main')
+            authenticator.logout('sidebar')
             st.session_state['logged_in'] = False
             st.session_state['username'] = ""
             st.session_state['api_key'] = ""
