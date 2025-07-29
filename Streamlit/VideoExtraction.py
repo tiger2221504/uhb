@@ -520,34 +520,34 @@ def main():
             # 候補が決まったら
             st.session_state["video_configs"] = video_configs
             msg4 = st.empty()
-            if "video_configs" in st.session_state:
-                video_configs = st.session_state["video_configs"]
-                num_videos = len(video_configs)
-                msg4.success(f"{num_videos}本の候補が生成されました。動画を切り出します。")
+        if "video_configs" in st.session_state:
+            video_configs = st.session_state["video_configs"]
+            num_videos = len(video_configs)
+            msg4.success(f"{num_videos}本の候補が生成されました。動画を切り出します。")
 
-                # 案の内容を確認
-                for i, config in enumerate(video_configs):
-                    with st.expander(f"候補 {i+1}: {config['headline'][0]} ／ {config['headline'][1]}", expanded=False):
-                        st.markdown("**切り出し区間（秒）**")
-                        for seg in config['segments']:
-                            st.markdown(
-                                f"- ⏱️ **{seg['start']:.1f}** ～ **{seg['end']:.1f}**"
-                            )
-        
-                with st.spinner("動画を切り出し中…"):
-                    process_multiple_videos(
-                        video_configs, temp_video_path, output_file_name
-                    )
-                    msg4.empty()
-                st.success("動画が完成しました！")
-                st.rerun()
+            # 案の内容を確認
+            for i, config in enumerate(video_configs):
+                with st.expander(f"候補 {i+1}: {config['headline'][0]} ／ {config['headline'][1]}", expanded=False):
+                    st.markdown("**切り出し区間（秒）**")
+                    for seg in config['segments']:
+                        st.markdown(
+                            f"- ⏱️ **{seg['start']:.1f}** ～ **{seg['end']:.1f}**"
+                        )
+    
+            with st.spinner("動画を切り出し中…"):
+                process_multiple_videos(
+                    video_configs, temp_video_path, output_file_name
+                )
+                msg4.empty()
+            st.success("動画が完成しました！")
+            st.rerun()
 
     except Exception as e:
         err_msg = str(e)
         if "incorrect api key" in err_msg.lower() or "invalid_api_key" in err_msg.lower():
             st.error("設定されたAPIキーが正しくありません。ログインしなおしてください。")
         elif "insufficient_quota" in err_msg.lower():
-            st.error("OpenAIの利用上限（クォータ）を超えました。Usage/Billing画面で残高をご確認ください。")
+            st.error("登録されたAPIキーの利用上限を超えました。Usage/Billing画面で残高をご確認ください。")
         elif "'invalid_request_error', 'param': None" in err_msg.lower():
             st.error("ページ更新後、ログインしなおしてください")
         else:
