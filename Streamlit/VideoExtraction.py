@@ -16,9 +16,9 @@ def notification(text):
         <script>
         // 通知の許可をリクエスト
         if ("Notification" in window) {
-          if (Notification.permission === "granted") {
-            new Notification("{text}");
-          } else if (Notification.permission !== "denied") {
+            if (Notification.permission === "granted") {
+                new Notification("{text}");
+        } else if (Notification.permission !== "denied") {
             Notification.requestPermission().then(function (permission) {
               if (permission === "granted") {
                 new Notification("{text}");
