@@ -377,14 +377,12 @@ def main():
                 st.sidebar.markdown(f"👤 **{st.session_state.username}**としてログイン中")
 
             # ==ログアウト処理==
-            authenticator.logout('sidebar')
-            if st.sidebar.button("ログアウト"):
-                
+            logout_clicked = authenticator.logout('ログアウト','sidebar')
+            if logout_clicked:
                 st.session_state['logged_in'] = False
                 st.session_state['username'] = ""
                 st.session_state['api_key'] = ""
                 st.session_state['generation_done'] = False
-    
                 st.rerun()
 
         # 動画アップロード
