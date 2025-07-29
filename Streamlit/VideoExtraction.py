@@ -276,7 +276,9 @@ def main():
         else:
             # ログイン後に表示
             user_info = USER_CREDENTIALS[st.session_state.username]
-            st.sidebar.markdown(f"👤 **{st.session_state.username}**としてログイン中")
+            loginmessage = f"👤 **{st.session_state.username}**としてログイン中"
+            st.sidebar.markdown(loginmessage)
+            notification(loginmessage)
             api_key = st.session_state.api_key
             if st.sidebar.button("ログアウト"):
                 st.session_state.logged_in = False
