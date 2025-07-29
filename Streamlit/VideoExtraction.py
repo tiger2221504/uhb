@@ -13,23 +13,21 @@ import time
 # 通知を出す
 def notification(text):
     md = f"""
-        <script>
-        // 通知の許可をリクエスト
-        if ("Notification" in window) {
-            if (Notification.permission === "granted") {
-                new Notification("{text}");
-        } else if (Notification.permission !== "denied") {
-            Notification.requestPermission().then(function (permission) {
-              if (permission === "granted") {
-                new Notification("{text}");
-              }
-            });
-          }
-        }
-        </script>
-        """
+    <script>
+    if ("Notification" in window) {{
+      if (Notification.permission === "granted") {{
+        new Notification('{text}');
+      }} else if (Notification.permission !== "denied") {{
+        Notification.requestPermission().then(function (permission) {{
+          if (permission === "granted") {{
+            new Notification('{text}');
+          }}
+        }});
+      }}
+    }}
+    </script>
+    """
     st.markdown(md, unsafe_allow_html=True)
-    return
     
 # 動画の長さ取得
 def get_video_duration(video_path):
