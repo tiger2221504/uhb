@@ -163,84 +163,103 @@ def process_segment(segments, video_path, file_name):
 def process_multiple_videos(video_configs, video_path, output_file_name):
     output_files = []
     for i, config in enumerate(video_configs):
+        result = st.session_state["video_results"][i]
         st.markdown(f"### 動画{i+1}")
-        file_name = f"{output_file_name}{i+1}"
-        msg = st.empty()
-        msg.info(f"動画{i+1}を生成中…")
-        output_file = process_segment(config["segments"], video_path, file_name)
-        if output_file and os.path.exists(output_file):
-            msg.empty()
-            with open(output_file, "rb") as f:
-                video_bytes = f.read()
+        # 既に正常完了している場合はそのまま表示
+        if result and result.get("status") == "ok":
+            show_video_result(i, result)
+            continue
+        # 失敗 or 初回 の場合
+        run_flag = False
+        if result is None or result.get("status") == "error":
+            # 「再実行」ボタン
+            if result and result.get("status") == "error":
+                if st.button(f"動画{i+1}再実行", key=f"retry_{i}"):
+                    run_flag = True
+            else:
+                run_flag = True
 
-            st.video(video_bytes)
+        if run_flag:
+            output_file = process_segment(config["segments"], video_path, f"{output_file_name}{i+1}")
+            if output_file and os.path.exists(output_file):
+                with open(output_file, "rb") as f:
+                    video_bytes = f.read()
+                st.session_state["video_results"][i] = {
+                    "status": "ok",
+                    "video_bytes": video_bytes,
+                    "filename": output_file,
+                    "headline": config["headline"]
+                }
+                show_video_result(i, st.session_state["video_results"][i])
+            else:
+                st.session_state["video_results"][i] = {
+                    "status": "error",
+                    "headline": config["headline"]
+                }
+                st.error(f"動画{i+1}の生成に失敗")
+                # 再実行ボタン
+                st.button(f"動画{i+1}再実行", key=f"retry_{i}_aftererror")
+    # 全部完了したら通知
+    if all(x and x.get("status") == "ok" for x in st.session_state["video_results"]):
+        notification("全ての動画生成が完了しました！")
 
-            c1, c2 = st.columns(2)
-            # 見出し1
-            with c1:
-                h1 = config['headline'][0]
-                st.markdown(f"**見出し1行目:**\n {h1}")
-                st.components.v1.html(
-                    f"""
-                    <div style="display: flex; align-items: center;">
-                        <textarea id="text-areaA-{i}" style="width:0;height:0;opacity:0;position:absolute;">{h1}</textarea>
-                        <button onclick="copyTextA_{i}()" style="height:28px;font-size:0.9em;">コピー</button>
-                        <span id="copy-messageA-{i}" style="color:green; display:none; font-size:0.9em; margin-left:6px;">☑コピーしました</span>
-                    </div>
-                    <script>
-                    function copyTextA_{i}() {{
-                        var text = document.getElementById('text-areaA-{i}').value;
-                        navigator.clipboard.writeText(text).then(function() {{
-                            document.getElementById('copy-messageA-{i}').style.display = 'inline';
-                            setTimeout(function() {{
-                                document.getElementById('copy-messageA-{i}').style.display = 'none';
-                            }}, 1500);
-                        }});
-                    }}
-                    </script>
-                    """,
-                    height=38,
-                )
-            
-            # 見出し2
-            with c2:
-                h2 = config['headline'][1]
-                st.markdown(f"**見出し2行目:**\n {h2}")
-                st.components.v1.html(
-                    f"""
-                    <div style="display: flex; align-items: center;">
-                        <textarea id="text-areaB-{i}" style="width:0;height:0;opacity:0;position:absolute;">{h2}</textarea>
-                        <button onclick="copyTextB_{i}()" style="height:28px;font-size:0.9em;">コピー</button>
-                        <span id="copy-messageB-{i}" style="color:green; display:none; font-size:0.9em; margin-left:6px;">☑コピーしました</span>
-                    </div>
-                    <script>
-                    function copyTextB_{i}() {{
-                        var text = document.getElementById('text-areaB-{i}').value;
-                        navigator.clipboard.writeText(text).then(function() {{
-                            document.getElementById('copy-messageB-{i}').style.display = 'inline';
-                            setTimeout(function() {{
-                                document.getElementById('copy-messageB-{i}').style.display = 'none';
-                            }}, 1500);
-                        }});
-                    }}
-                    </script>
-                    """,
-                    height=38,
-                )
-                
-            st.download_button(
-                label=f"動画{i+1}をダウンロード",
-                data=video_bytes,
-                file_name=output_file,
-                mime="video/mp4"
-            )
-            
-            output_files.append(output_file)
-        else:
-            msg.empty()
-            st.error(f"動画{i+1}の生成に失敗")
-    notification("全ての動画生成が完了しました！")
-    return output_files
+def show_video_result(i, result):
+    st.video(result["video_bytes"])
+    c1, c2 = st.columns(2)
+    with c1:
+        h1 = result["headline"][0]
+        st.markdown(f"**見出し1行目:**\n {h1}")
+        st.components.v1.html(
+            f"""
+            <div style="display: flex; align-items: center;">
+                <textarea id="text-areaA-{i}" style="width:0;height:0;opacity:0;position:absolute;">{h1}</textarea>
+                <button onclick="copyTextA_{i}()" style="height:28px;font-size:0.9em;">コピー</button>
+                <span id="copy-messageA-{i}" style="color:green; display:none; font-size:0.9em; margin-left:6px;">☑コピーしました</span>
+            </div>
+            <script>
+            function copyTextA_{i}() {{
+                var text = document.getElementById('text-areaA-{i}').value;
+                navigator.clipboard.writeText(text).then(function() {{
+                    document.getElementById('copy-messageA-{i}').style.display = 'inline';
+                    setTimeout(function() {{
+                        document.getElementById('copy-messageA-{i}').style.display = 'none';
+                    }}, 1500);
+                }});
+            }}
+            </script>
+            """,
+            height=38,
+        )
+    with c2:
+        h2 = result["headline"][1]
+        st.markdown(f"**見出し2行目:**\n {h2}")
+        st.components.v1.html(
+            f"""
+            <div style="display: flex; align-items: center;">
+                <textarea id="text-areaB-{i}" style="width:0;height:0;opacity:0;position:absolute;">{h2}</textarea>
+                <button onclick="copyTextB_{i}()" style="height:28px;font-size:0.9em;">コピー</button>
+                <span id="copy-messageB-{i}" style="color:green; display:none; font-size:0.9em; margin-left:6px;">☑コピーしました</span>
+            </div>
+            <script>
+            function copyTextB_{i}() {{
+                var text = document.getElementById('text-areaB-{i}').value;
+                navigator.clipboard.writeText(text).then(function() {{
+                    document.getElementById('copy-messageB-{i}').style.display = 'inline';
+                    setTimeout(function() {{
+                        document.getElementById('copy-messageB-{i}').style.display = 'none';
+                    }}, 1500);
+                }});
+            }}
+            </script>
+            """,
+            height=38,
+        )
+    st.download_button(
+        label=f"動画{i+1}をダウンロード",
+        data=result["video_bytes"],
+        file_name=os.path.basename(result["filename"]),
+        mime="video/mp4"
+    )
 
 # GPT出力からJSON抽出
 def extract_json(gpt_output):
@@ -279,8 +298,9 @@ def extract_json(gpt_output):
         return json.loads(cleaned_json)
     except json.JSONDecodeError:
         return None
+        
 
-# ここからメイン
+# ＝＝＝ここからメイン＝＝＝
 def main():
     USER_CREDENTIALS = st.secrets["USER_CREDENTIALS"]
     api_key = ""
@@ -545,13 +565,17 @@ def main():
             msg4.success(f"{num_videos}本の候補が生成されました。動画を切り出します。")
     
             if not st.session_state.generation_done:
+                # 各動画でそれぞれセッション管理
+                if "video_results" not in st.session_state:
+                    st.session_state["video_results"] = [None] * len(video_configs)
+                    
                 with st.spinner("動画を切り出し中…"):
                     process_multiple_videos(
                         video_configs, temp_video_path, output_file_name
                     )
                     msg4.empty()
                 st.success("動画が完成しました！")
-                st.session_state.generation_done = True
+                st.session_state["generation_done"] = True
                 st.rerun()
 
     except Exception as e:
