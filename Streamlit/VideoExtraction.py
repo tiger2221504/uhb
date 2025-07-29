@@ -51,7 +51,7 @@ def concat_clips_ffmpeg(clip_filenames, output_path):
     ]
 
     result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-    st.write(result.stdout)  # ffmpegのログをStreamlitに表示
+    # st.write(result.stdout)  # ffmpegのログをStreamlitに表示
 
 # 音声有無
 def has_audio_stream(video_path):
@@ -145,10 +145,11 @@ def process_multiple_videos(video_configs, video_path, output_file_name):
     output_files = []
     for i, config in enumerate(video_configs):
         file_name = f"{output_file_name}{i+1}"
-        st.info(f"動画{i+1}を生成中…")
+        msg = st.empty()
+        msg.info(f"動画{i+1}を生成中…")
         output_file = process_segment(config["segments"], video_path, file_name)
         if output_file and os.path.exists(output_file):
-            st.success(f"動画{i+1}生成完了: {output_file}")
+            msg.empty()
             with open(output_file, "rb") as f:
                 video_bytes = f.read()
 
