@@ -165,9 +165,9 @@ def process_segment(segments, video_path, file_name):
 def process_multiple_videos(video_configs, video_path, output_file_name):
     output_files = []
     for i, config in enumerate(video_configs):
+        result = st.session_state["video_results"][i]
+        st.markdown(f"### 動画{i+1}")
         with st.spinner(f"動画{i+1}処理中…"):
-            result = st.session_state["video_results"][i]
-            st.markdown(f"### 動画{i+1}")
             # 既に正常完了している場合はそのまま表示
             if result and result.get("status") == "ok":
                 show_video_result(i, result)
@@ -215,7 +215,7 @@ def show_video_result(i, result):
     c1, c2 = st.columns(2)
     with c1:
         h1 = result["headline"][0]
-        st.markdown(f"**見出し1行目:**\n {h1}")
+        st.markdown(f"**1行目案:**\n {h1}")
         st.components.v1.html(
             f"""
             <div style="display: flex; align-items: center;">
@@ -239,7 +239,7 @@ def show_video_result(i, result):
         )
     with c2:
         h2 = result["headline"][1]
-        st.markdown(f"**見出し2行目:**\n {h2}")
+        st.markdown(f"**2行目案:**\n {h2}")
         st.components.v1.html(
             f"""
             <div style="display: flex; align-items: center;">
@@ -412,32 +412,33 @@ def main():
                     st.session_state.generation_done = False
                 msg2.empty()
                 msg3.success("アップロードが完了しました！")
-                video_configs = None
-                base_file_name = os.path.splitext(os.path.basename(uploaded_file.name))[0]
-                base_file_name_short = base_file_name[:50]
-                output_file_name = f"{base_file_name_short}_{st.session_state['upload_time']}_"
-                temp_video = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4')
-                temp_video.write(uploaded_file.getbuffer())
-                temp_video_path = temp_video.name
-                temp_video.close()
-        
-                # ファイルが変わったらキャッシュクリア
-                if (
-                    "uploaded_file_name" not in st.session_state or
-                    st.session_state.uploaded_file_name != uploaded_file.name
-                ):
-                    msg3.empty()
-                    st.session_state.uploaded_file_name = uploaded_file.name
-                    st.session_state.transcript = None  # キャッシュクリア
-                    st.session_state.generation_done = False  # キャッシュクリア
+                with st.spinner("文字起こし中の準備中…"):
+                    video_configs = None
+                    base_file_name = os.path.splitext(os.path.basename(uploaded_file.name))[0]
+                    base_file_name_short = base_file_name[:50]
+                    output_file_name = f"{base_file_name_short}_{st.session_state['upload_time']}_"
+                    temp_video = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4')
+                    temp_video.write(uploaded_file.getbuffer())
+                    temp_video_path = temp_video.name
+                    temp_video.close()
+            
+                    # ファイルが変わったらキャッシュクリア
+                    if (
+                        "uploaded_file_name" not in st.session_state or
+                        st.session_state.uploaded_file_name != uploaded_file.name
+                    ):
+                        msg3.empty()
+                        st.session_state.uploaded_file_name = uploaded_file.name
+                        st.session_state.transcript = None  # キャッシュクリア
+                        st.session_state.generation_done = False  # キャッシュクリア
     
             if "transcript" not in st.session_state or st.session_state.transcript is None:
                 # Whisperで音声抽出＆認識
-                audio_tmp = tempfile.NamedTemporaryFile(delete=False, suffix='.mp3')
-                video = VideoFileClip(temp_video_path)
-                video.audio.write_audiofile(audio_tmp.name, logger=None)
-                audio_tmp.close()
-                with st.spinner("文字起こし中…しばらくお待ちください"):
+                with st.spinner("文字起こし中📝…しばらくお待ちください"):
+                    audio_tmp = tempfile.NamedTemporaryFile(delete=False, suffix='.mp3')
+                    video = VideoFileClip(temp_video_path)
+                    video.audio.write_audiofile(audio_tmp.name, logger=None)
+                    audio_tmp.close()
                     client = openai.OpenAI(api_key=api_key)
                     with open(audio_tmp.name, "rb") as audio_file:
                         transcript = client.audio.transcriptions.create(
@@ -571,7 +572,7 @@ def main():
 
             # 案の内容を確認
             for i, config in enumerate(video_configs):
-                with st.expander(f"候補 {i+1}: {config['headline'][0]} ／ {config['headline'][1]}", expanded=False):
+                with st.expander(f"✨候補 {i+1}: {config['headline'][0]} ／ {config['headline'][1]}", expanded=False):
                     st.markdown("**切り出し区間（秒）**")
                     for seg in config['segments']:
                         st.markdown(
