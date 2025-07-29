@@ -307,6 +307,32 @@ def extract_json(gpt_output):
 # ＝＝＝ここからメイン＝＝＝
 def main():
     USER_CREDENTIALS = st.secrets["USER_CREDENTIALS"]
+    usernames = list(USER_CREDENTIALS.keys())
+    names = [u for u in usernames]  # 名前表示
+    passwords = [USER_CREDENTIALS[u]['password'] for u in usernames]
+    
+    # パスワードをハッシュ化
+    hashed_passwords = stauth.Hasher(passwords).generate()
+
+    cookie_name = st.secrets["COOKIE_NAME"]
+    cookie_signature_key = st.secrets["COOKIE_SIGNATURE_KEY"]
+    
+    # 認証オブジェクト生成
+    authenticator = stauth.Authenticate(
+        names, usernames, hashed_passwords,
+        cookie_name, cookie_signature_key, cookie_expiry_days=7
+    )
+    
+    name, authentication_status, username = authenticator.login('ログイン', 'main')
+    if authentication_status:
+        st.session_state['logged_in'] = True
+        st.session_state['username'] = username
+        st.session_state['api_key'] = USER_CREDENTIALS[username]['api_key']
+    elif authentication_status is False:
+        st.session_state['logged_in'] = False
+    else:
+        st.session_state['logged_in'] = False
+
     api_key = ""
     gpt_model = "gpt-4.1"
     uploaded_file = None
@@ -327,52 +353,25 @@ def main():
         st.session_state.username = ""
     if "api_key" not in st.session_state:
         st.session_state.api_key = ""
+
+    if not st.session_state.logged_in:
+        st.warning("👈まずはログインしてください")
+        st.stop()
     
-    try:
-        msg = st.sidebar.empty()
-        msg2 = st.empty()
-        
-        if not st.session_state.logged_in:
-            login_area = st.sidebar.empty()
-            with login_area.container():
-                st.header("ログイン")
-                username = st.text_input("ユーザー名")
-                password = st.text_input("パスワード", type="password")
-                login_button = st.button("ログイン")
-                
-                # 認証処理
-                if login_button:
-                    user_info = USER_CREDENTIALS.get(username)
-                    if user_info and user_info["password"] == password:
-                        st.session_state.logged_in = True
-                        st.session_state.username = username
-                        st.session_state.api_key = user_info["api_key"]
-                        api_key = st.session_state.api_key
-                        login_area.empty() # ログインフォームを消す
-                        msg.success("ログインに成功しました")
-                        time.sleep(2)
-                        msg.empty()
-                        st.rerun() # ログイン状態を反映するために再実行
-                    elif (not user_info) or (not user_info["password"]):
-                        st.error("ユーザー名・パスワードどちらも入力してください")
-                    else:
-                        st.error("ユーザー名またはパスワードが間違っています")
-        else:
-            # ログイン後に表示
-            user_info = USER_CREDENTIALS[st.session_state.username]
-            st.sidebar.markdown(f"👤 **{st.session_state.username}**としてログイン中")
-            notification(f"「{st.session_state.username}」としてログイン中")
-            api_key = st.session_state.api_key
-            if st.sidebar.button("ログアウト"):
-                st.session_state.logged_in = False
-                st.session_state.username = ""
-                st.session_state.api_key = ""
-                st.session_state.generation_done = False
-                st.rerun()  # ログアウト後に画面を更新
+    try:            
+        # ログイン後に表示
+        st.sidebar.markdown(f"👤 **{st.session_state.username}**としてログイン中")
+        notification(f"「{st.session_state.username}」としてログイン中")
+        api_key = st.session_state.api_key
+        if st.sidebar.button("ログアウト"):
+            authenticator.logout('main')
+            st.session_state['logged_in'] = False
+            st.session_state['username'] = ""
+            st.session_state['api_key'] = ""
+            st.session_state['generation_done'] = False
+            st.rerun()
 
         # 動画アップロード
-        if not st.session_state.logged_in:
-            st.warning("👈まずはログインしてください")
         if st.session_state.logged_in:
             st.header("■動画ファイルをアップロード")
             msg2.success("動画をドラッグアンドドロップで読み込みできます！")
