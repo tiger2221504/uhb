@@ -307,18 +307,23 @@ def extract_json(gpt_output):
 # ＝＝＝ここからメイン＝＝＝
 def main():
     USER_CREDENTIALS = st.secrets["USER_CREDENTIALS"]
-    usernames = [u for u in USER_CREDENTIALS if 'password' in USER_CREDENTIALS[u] and USER_CREDENTIALS[u]['password']]
-    names = usernames
-    passwords = [str(USER_CREDENTIALS[u]['password']) for u in usernames]
+    credentials = {
+        "usernames": {
+            uname: {
+                "name": uname,
+                "password": info["password"],
+                "api_key": info.get("api_key", "")
+            }
+            for uname, info in USER_CREDENTIALS.items()
+        }
+    }
 
     cookie_name = st.secrets["COOKIE_NAME"]
     cookie_signature_key = st.secrets["COOKIE_SIGNATURE_KEY"]
     
     # 認証オブジェクト生成
     authenticator = stauth.Authenticate(
-        names=names,
-        usernames=usernames,
-        passwords=passwords,
+        credentials,
         cookie_name=cookie_name, 
         key=cookie_signature_key, 
         cookie_expiry_days=7
