@@ -178,55 +178,53 @@ def process_multiple_videos(video_configs, video_path, output_file_name):
             # 見出し1
             with c1:
                 h1 = config['headline'][0]
-                st.text_area(f"動画{i+1} 見出し1行目", value=h1, height=30, key=f"outputA_{i}")
-                copy_button1 = f"""
-                <button onclick="copyTextA_{i}()">クリップボードにコピー</button>
-                <p id="copy-messageA-{i}" style="color:green; display:none;">☑コピーしました</p>
-                <script>
-                function copyTextA_{i}() {{
-                    var text = document.getElementById('text-areaA-{i}').value;
-                    navigator.clipboard.writeText(text).then(function() {{
-                        document.getElementById('copy-messageA-{i}').style.display = 'block';
-                        setTimeout(function() {{
-                            document.getElementById('copy-messageA-{i}').style.display = 'none';
-                        }}, 2000);
-                    }});
-                }}
-                </script>
-                """
+                st.text_area(f"動画{i+1} 見出し1行目", value=h1, height=28, key=f"outputA_{i}")
                 st.components.v1.html(
                     f"""
-                    <textarea id="text-areaA-{i}" style="display:none;">{h1}</textarea>
-                    {copy_button1}
+                    <div style="display: flex; align-items: center;">
+                        <textarea id="text-areaA-{i}" style="width:0;height:0;opacity:0;position:absolute;">{h1}</textarea>
+                        <button onclick="copyTextA_{i}()" style="height:28px;font-size:0.9em;">コピー</button>
+                        <span id="copy-messageA-{i}" style="color:green; display:none; font-size:0.9em; margin-left:6px;">☑コピー</span>
+                    </div>
+                    <script>
+                    function copyTextA_{i}() {{
+                        var text = document.getElementById('text-areaA-{i}').value;
+                        navigator.clipboard.writeText(text).then(function() {{
+                            document.getElementById('copy-messageA-{i}').style.display = 'inline';
+                            setTimeout(function() {{
+                                document.getElementById('copy-messageA-{i}').style.display = 'none';
+                            }}, 1500);
+                        }});
+                    }}
+                    </script>
                     """,
-                    height=50,
+                    height=38,
                 )
-
+            
             # 見出し2
             with c2:
                 h2 = config['headline'][1]
-                st.text_area(f"動画{i+1} 見出し2行目", value=h2, height=30, key=f"outputB_{i}")
-                copy_button2 = f"""
-                <button onclick="copyTextB_{i}()">クリップボードにコピー</button>
-                <p id="copy-messageB-{i}" style="color:green; display:none;">☑コピーしました</p>
-                <script>
-                function copyTextB_{i}() {{
-                    var text = document.getElementById('text-areaB-{i}').value;
-                    navigator.clipboard.writeText(text).then(function() {{
-                        document.getElementById('copy-messageB-{i}').style.display = 'block';
-                        setTimeout(function() {{
-                            document.getElementById('copy-messageB-{i}').style.display = 'none';
-                        }}, 2000);
-                    }});
-                }}
-                </script>
-                """
+                st.text_area(f"動画{i+1} 見出し2行目", value=h2, height=28, key=f"outputB_{i}")
                 st.components.v1.html(
                     f"""
-                    <textarea id="text-areaB-{i}" style="display:none;">{h2}</textarea>
-                    {copy_button2}
+                    <div style="display: flex; align-items: center;">
+                        <textarea id="text-areaB-{i}" style="width:0;height:0;opacity:0;position:absolute;">{h2}</textarea>
+                        <button onclick="copyTextB_{i}()" style="height:28px;font-size:0.9em;">コピー</button>
+                        <span id="copy-messageB-{i}" style="color:green; display:none; font-size:0.9em; margin-left:6px;">☑コピー</span>
+                    </div>
+                    <script>
+                    function copyTextB_{i}() {{
+                        var text = document.getElementById('text-areaB-{i}').value;
+                        navigator.clipboard.writeText(text).then(function() {{
+                            document.getElementById('copy-messageB-{i}').style.display = 'inline';
+                            setTimeout(function() {{
+                                document.getElementById('copy-messageB-{i}').style.display = 'none';
+                            }}, 1500);
+                        }});
+                    }}
+                    </script>
                     """,
-                    height=50,
+                    height=38,
                 )
                 
             st.download_button(
@@ -531,13 +529,6 @@ def main():
                 # 案の内容を確認
                 for i, config in enumerate(video_configs):
                     with st.expander(f"候補 {i+1}: {config['headline'][0]} ／ {config['headline'][1]}", expanded=False):
-                        c1, c2 = st.columns([1, 1])
-                        with c1:
-                            st.markdown(f"**見出し①案**")
-                            st.info(config['headline'][0])
-                        with c2:
-                            st.markdown(f"**見出し②案**")
-                            st.info(config['headline'][1])
                         st.markdown("**切り出し区間（秒）**")
                         for seg in config['segments']:
                             st.markdown(
