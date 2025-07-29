@@ -10,4 +10,4 @@ yt_dlp
 Pillow
 openai
 ffmpeg
-streamlit_authenticator==0.3.0
+streamlit_authenticator==0.3.2
