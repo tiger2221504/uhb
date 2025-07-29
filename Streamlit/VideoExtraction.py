@@ -7,7 +7,7 @@ import re
 import openai
 from moviepy.editor import VideoFileClip
 import time
-# os.system("apt-get update && apt-get install -y ffmpeg")
+import streamlit_authenticator as stauth
 
 # ==関数==
 # 通知を出す
