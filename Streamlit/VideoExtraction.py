@@ -342,7 +342,7 @@ def main():
                 st.session_state.api_key = ""
                 st.rerun()  # ログアウト後に画面を更新
 
-        # --- 動画アップロード ---
+        # 動画アップロード
         if not st.session_state.logged_in:
             st.warning("👈まずはログインしてください")
         if st.session_state.logged_in:
@@ -383,6 +383,7 @@ def main():
                     "uploaded_file_name" not in st.session_state or
                     st.session_state.uploaded_file_name != uploaded_file.name
                 ):
+                    msg3.empty()
                     st.session_state.uploaded_file_name = uploaded_file.name
                     st.session_state.transcript = None  # キャッシュクリア
     
@@ -405,6 +406,7 @@ def main():
                     st.session_state.transcript = transcript
                     msg3.empty()
             else:
+                msg3.empty()
                 transcript = st.session_state.transcript
     
             # テキスト表示
