@@ -325,11 +325,11 @@ def main():
     authenticator = stauth.Authenticate(
         credentials,
         cookie_name=cookie_name, 
-        key=cookie_signature_key, 
+        signature_key=cookie_signature_key, 
         cookie_expiry_days=7
     )
     
-    name, authentication_status, username = authenticator.login(form_name='ログイン', location='main')
+    name, authentication_status, username = authenticator.login('ログイン', location='main')
     
     if authentication_status:
         st.session_state['logged_in'] = True
