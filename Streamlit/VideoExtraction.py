@@ -265,7 +265,8 @@ def show_video_result(i, result):
         label=f"動画{i+1}をダウンロード",
         data=result["video_bytes"],
         file_name=os.path.basename(result["filename"]),
-        mime="video/mp4"
+        mime="video/mp4",
+        key=f"download_btn_{i+1}"
     )
 
 # GPT出力からJSON抽出
