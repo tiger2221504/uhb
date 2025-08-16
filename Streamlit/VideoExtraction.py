@@ -312,7 +312,7 @@ def extract_json(gpt_output):
 def main():
     # 変数の初期化
     api_key = ""
-    gpt_model = "gpt-4.1-mini"
+    # gpt_model = "gpt-4.1"
     uploaded_file = None
     temp_video_path = None
     video_configs = None
@@ -386,6 +386,13 @@ def main():
                 st.session_state['api_key'] = ""
                 st.session_state['generation_done'] = False
                 st.rerun()
+
+        # モデル選択
+        gpt_model = st.selectbox(
+            "model選択",  # ラベル
+            ("gpt-4.1-mini", "gpt-4.1", "gpt-4o", "gpt-4o-mini"),
+            index=0
+        )
 
         # 動画アップロード
         if st.session_state.logged_in:
