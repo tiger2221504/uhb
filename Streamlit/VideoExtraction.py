@@ -312,7 +312,7 @@ def extract_json(gpt_output):
 def main():
     # 変数の初期化
     api_key = ""
-    gpt_model = "gpt-4.1"
+    gpt_model = "gpt-4.1-mini"
     uploaded_file = None
     temp_video_path = None
     video_configs = None
@@ -328,6 +328,9 @@ def main():
         st.session_state.username = ""
     if "api_key" not in st.session_state:
         st.session_state.api_key = ""
+
+    # タイトル表示
+    st.title("動画切り取りアプリ✂️")
 
     # ==ログイン関係==
     USER_CREDENTIALS = st.secrets["USER_CREDENTIALS"]
@@ -369,9 +372,7 @@ def main():
             st.session_state['api_key'] = credentials["usernames"][username]["api_key"]
 
     # ==ここからアプリ表示==
-    try:
-        st.title("動画切り取りアプリ✂️")
-        
+    try:       
         if st.session_state.get("logged_in"):
             api_key = st.session_state.api_key
             if st.session_state.get("username"):
@@ -388,9 +389,6 @@ def main():
 
         # 動画アップロード
         if st.session_state.logged_in:
-            st.header("■動画ファイルをアップロード")
-            msg2 = st.empty()
-            msg2.success("動画をドラッグアンドドロップで読み込みできます！")
             uploaded_file = st.file_uploader(
                 "ここに動画ファイルをドラッグ＆ドロップ、またはクリックして選択",
                 type=["mp4"],
