@@ -584,29 +584,20 @@ def main():
                         
             msg4 = st.empty()            
             msg4.success(f"{num_videos}本の候補が生成されました。動画を切り出します。")
-
-            # 動画生成済み結果を最初に全て表示
-            if "video_results" in st.session_state:
-                process_multiple_videos(
-                    video_configs, temp_video_path, output_file_name
-                )
-                if all(x and x.get("status") == "ok" for x in st.session_state["video_results"]):
-                    msg4.empty()
-    
-            if not st.session_state.generation_done:
-                # 各動画でそれぞれセッション管理
-                if "video_results" not in st.session_state:
-                    st.session_state["video_results"] = [None] * len(video_configs)
-                    
-                with st.spinner("動画を切り出し中…"):
-                    process_multiple_videos(
-                        video_configs, temp_video_path, output_file_name
-                    )
-                    msg4.empty()
+            
+            # 初期化（最初の一度だけ／本数が変わったときもリセット）
+            if "video_results" not in st.session_state or len(st.session_state["video_results"]) != len(video_configs):
+                st.session_state["video_results"] = [None] * len(video_configs)
+            
+            process_multiple_videos(
+                video_configs, temp_video_path, output_file_name
+            )
+            
+            # すべて成功していればメッセージ更新
+            if all(x and x.get("status") == "ok" for x in st.session_state["video_results"]):
+                msg4.empty()
                 st.success("動画が完成しました！")
                 st.session_state["generation_done"] = True
-                st.rerun()
-                st.stop() # 二重実行を防ぐ
 
     except Exception as e:
         err_msg = str(e)
