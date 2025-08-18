@@ -39,7 +39,7 @@ def notification(title, body=""):
       }}
     }}
     </script>
-    """, height=0, key=f"notify-{time.time()}")
+    """, height=0)
     
 # 動画の長さ取得
 def get_video_duration(video_path):
