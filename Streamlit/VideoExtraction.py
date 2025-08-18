@@ -39,7 +39,7 @@ def notification(title, body=""):
       }}
     }}
     </script>
-    """, height=0)
+    """, height=0, key=f"notify-{time.time()}")
     
 # 動画の長さ取得
 def get_video_duration(video_path):
@@ -279,25 +279,6 @@ def show_video_result(i, result):
         key=f"download_btn_{i+1}"
     )
 
-# GPT出力からJSON抽出
-def extract_json(gpt_output):
-    match = re.search(r"(\[\s*{.*}\s*\])", gpt_output, re.DOTALL)
-    if not match:
-        st.error("JSONブロックが見つかりませんでした")
-        st.write(gpt_output)
-        return None
-    raw_json = match.group(1)
-    cleaned_json = (
-        raw_json.replace("“", '"').replace("”", '"')
-        .replace("‘", "'").replace("’", "'").strip()
-    )
-    try:
-        return json.loads(cleaned_json)
-    except json.JSONDecodeError as e:
-        st.error("JSONのパースエラー")
-        st.write(cleaned_json)
-        return None
-
 # JSON部分だけ抽出
 def extract_json(gpt_output):
     match = re.search(r"(\[\s*{.*}\s*\])", gpt_output, re.DOTALL)
@@ -322,7 +303,7 @@ def extract_json(gpt_output):
 def main():
     # 変数の初期化
     api_key = ""
-    # gpt_model = "gpt-4.1"
+    # gpt_model = "gpt-4.1-mini"
     uploaded_file = None
     temp_video_path = None
     video_configs = None
@@ -390,13 +371,14 @@ def main():
 
             # ==ログアウト処理==
             logout_clicked = authenticator.logout('ログアウト','sidebar')
-            notification("ログアウト")
             if logout_clicked:
+                notification("🎬ログアウト", "動画切り取りアプリからログアウトしました")
                 st.session_state['logged_in'] = False
                 st.session_state['username'] = ""
                 st.session_state['api_key'] = ""
                 st.session_state['generation_done'] = False
                 st.rerun()
+                st.stop() # 二重実行を防ぐ
 
             # モデル選択
             gpt_model = st.sidebar.selectbox(
@@ -477,7 +459,12 @@ def main():
             for i, segment in enumerate(transcript.segments):
                 texts += f"{segment.text}\n"
             with st.expander("音声認識結果を表示（クリックで開閉）", expanded=False):
-                st.text_area("", texts, height=250)
+                st.text_area(
+                    "音声認識結果",
+                    texts, 
+                    height=250,
+                    label_visibility="collapsed"
+                )
             st.markdown("---")
         
         # 各セグメントをテキストにまとめる
@@ -509,14 +496,18 @@ def main():
 ※「**とは…」「なぜ**？」のような続きが見たくなりそうな文末の見出し。
 - 動画内で言っていないことを事実のように書くのは禁止
 - 2つの見出しに共通の単語や同じ意味の言葉は使用しない
+- 意味が伝わる範囲で、助詞の使用はなるべく減らす
 - “漢字のみ”の見出しは避ける
 - 絵文字や特殊文字は使用禁止
 - 記号は全角のものを使用する
 - 数字・アルファベット・空白は半角のものを使用する
 - 音声認識結果に誤字があると判断した場合は正しい字に直して出力する（例：「ドーミン」＝「道民」,「寝上げ」＝「値上げ」 など）
-- 疑問を投げかける形のセリフで終わると良い
+- 疑問を投げかける形のセリフや「…」などで終わると良い
+- 「片方の見出しは体言止め、もう片方の見出しは疑問形」という形式が定番 ただし例外も認める
 例1：["“とっさに蹴り”で反撃", "空手家が遭遇したのは…"]
 例2：["ダブル双子ママに密着", "忙しい朝 乗り切れる？"]
+例3：["レストランに結婚式も", "変わる“赤れんが庁舎”"]
+例4：["衝撃の爆発映像", "車が大破… なぜ？"]
 ②segments
 - 動画のIN点とOUT点を決める
 - 1つでも、複数入っても良い
@@ -578,6 +569,7 @@ def main():
             # 候補が決まったら
             st.session_state["video_configs"] = video_configs
         if "video_configs" in st.session_state:
+            st.write(f"使用したモデル：{gpt_model}")
             video_configs = st.session_state["video_configs"]
             num_videos = len(video_configs)
 
@@ -614,6 +606,7 @@ def main():
                 st.success("動画が完成しました！")
                 st.session_state["generation_done"] = True
                 st.rerun()
+                st.stop() # 二重実行を防ぐ
 
     except Exception as e:
         err_msg = str(e)
