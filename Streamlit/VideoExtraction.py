@@ -14,16 +14,26 @@ st.set_page_config(page_title="動画切り取りアプリ",page_icon="🎬", la
 
 # ==関数==
 # 通知を出す
-def notification(text):
+def notification(title, body=""):
     st.components.v1.html(f"""
     <script>
+    const title = {json.dumps(title)};
+    const body = {json.dumps(body)};
+
     if ("Notification" in window) {{
+      function showNotification() {{
+        new Notification(title, {{
+          body: body,
+          silent: false  // OS通知音を有効にする
+        }});
+      }}
+
       if (Notification.permission === "granted") {{
-        new Notification("{text}");
+        showNotification();
       }} else if (Notification.permission !== "denied") {{
         Notification.requestPermission().then(function (permission) {{
           if (permission === "granted") {{
-            new Notification("{text}");
+            showNotification();
           }}
         }});
       }}
@@ -205,7 +215,7 @@ def process_multiple_videos(video_configs, video_path, output_file_name):
     # 全部完了したら通知
     if all(x and x.get("status") == "ok" for x in st.session_state["video_results"]):
         if not st.session_state.get("notified"):
-            notification("全ての動画生成が完了しました！")
+            notification("✅完了", "全ての動画生成が完了しました！")
             st.session_state["notified"] = True
     else:
         st.session_state["notified"] = False
@@ -380,6 +390,7 @@ def main():
 
             # ==ログアウト処理==
             logout_clicked = authenticator.logout('ログアウト','sidebar')
+            notification("ログアウト")
             if logout_clicked:
                 st.session_state['logged_in'] = False
                 st.session_state['username'] = ""
